@@ -150,11 +150,11 @@
               "type": "string"
             }
           }
-        },
-        "required": [
-          "mapAxis"
-        ]
-      }
+        }
+      },
+      "required": [
+        "mapAxis"
+      ]
     },
     "scale": {
       "type": "object",
@@ -209,19 +209,12 @@
         }
       ]
     },
-    "mtxFlatOrNested" : {
+    "mtxNested" : {
       "type": "array",
-      "oneOf": [
-        {
-          "items": { "type": "number" }
-        },
-        {
-          "items": {
-              "type": "array",
-              "items" : { "type" : "number" }
-          }
-        }
-      ]
+      "items": {
+          "type": "array",
+          "items" : { "type" : "number" }
+      }
     },
     "affine": {
       "type": "object",
@@ -237,12 +230,12 @@
         {
           "properties": {
             "affine": {
-              "$ref": "#/$defs/mtxFlatOrNested"
-            },
-            "required": [
-              "affine"
-            ]
-          }
+              "$ref": "#/$defs/mtxNested"
+            }
+          },
+          "required": [
+            "affine"
+          ]
         }
       ]
     },
@@ -264,11 +257,11 @@
               "items": {
                 "type": "number"
               }
-            },
-            "required": [
-              "rotation"
-            ]
-          }
+            }
+          },
+          "required": [
+            "rotation"
+          ]
         }
       ]
     },
@@ -314,7 +307,10 @@
             "$ref": "#/$defs/coordinateTransformation"
           }
         }
-      }
+      },
+      "required": [
+        "transformations"
+      ]
     },
     "byDimension": {
       "type": "object",
