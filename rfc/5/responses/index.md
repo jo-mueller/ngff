@@ -1,9 +1,99 @@
-# Responses
+# RFC-5: Response 1 (2025-02-06 version)
 
-Responses from the authors of RFC-5:
+The authors extend their most sincere thanks and appreciation to all the reviewers of this RFC.
 
-```{toctree}
-:maxdepth: 1
-:glob:
-*/index
-```
+## General comments
+
+We have added many motivating examples for common use cases, but also for many edge-cases.
+These examples can be found on `s3://ngff-rfc5-coordinate-transformation-examples/`.
+The metadata are also mirrored [on github](https://github.com/bogovicj/ngff-rfc5-coordinate-transformation-examples)
+
+As well, [we provide instructions](https://github.com/bogovicj/ngff-rfc5-coordinate-transformation-examples/blob/main/bigwarp/README.md) 
+for viewing these examples with BigWarp, a reference implementation.
+
+## Review 1
+
+Daniel Toloudis, David Feng, Forrest Collman, and Nathalie Gaudreault at the Allen Institute provided 
+[Review 1](https://ngff.openmicroscopy.org/rfc/5/reviews/1/index.html).
+
+### Axes metadata
+
+We agree that additional motivating examples would be helpful.
+
+
+### CoordinateSystem
+
+
+### “Array” coordinate system
+
+Thank you for the feedback, we have edited this section with motivation and clarity[1]. We hope that the edits along with motivating examples will.
+
+### Units
+
+> Why have these explicit listed units and not just follow SI and specify the exponent on the SI unit that you are going for?
+
+This RFC does change some parts of the Axes metadata, but not the specification of units which remains unchanged
+relative to [v0.4](https://github.com/ome/ngff/blob/5067681721cc73ddf8b64692456cdda604cc659a/0.4/index.bs#L227-L229).
+As such, this is out of the scope of this RFC.
+
+This is an interesting and valuable idea though, and revisiting units would be good topic for a new RFC in my opinion, since
+they seem not to have been reconsidered since they 
+[were first introduced in 2021](https://github.com/ome/ngff/commit/0661115b93026f197d3787d99b74ec4d01614c99).
+
+### coordinateTransformations
+
+
+### Parameters
+
+
+## Review 2
+
+[Review 2](https://ngff.openmicroscopy.org/rfc/5/reviews/2/index.html) was written by William Moore, Jean-Marie Burel, Jason
+Swedlow from the University of Dundee.
+
+### Clarifications
+
+
+### Implementation section
+
+## Comment-1
+
+> Why not require a value for units and then make “arbitrary” or some sentinel the value that people must specify to say “no coordinates?”
+
+I agree that having some fixed value to mean "no units" would be a reasonable choice. In my opinion, having no units key
+reflects that "there are no units" better than a placeholder (and it avoids having to choose the value of the placeholder).
+
+> I wonder why `Arrays are inherently discrete (see Array coordinate systems, below) but are often used to store discrete samples
+> of a continuous variable.` isn’t true of everything? Aren’t the images themselves samplings? In general I wasn’t totally clear
+> on how interpolation works - I understand it is a user-applied “transformation” in which case I think that should be clear.
+
+I agree that digital images always contain samples. The purpose of this distinction is to communicate, to humans and
+software, a property of *the signal that is being sampled,* not the representation that is stored. That is the reason
+that "array coordinate systems" have discrete axes - because they have no additional interpretation.
+I added some clarifying text [1].
+
+
+## Comment-2
+
+> Rebasing to take into account the change to zarr v3 (e.g. remove references to .zarray and replace with zarr.json) / “ome” top-level key would be helpful for clarity.
+
+[Done.](https://github.com/bogovicj/ngff/commit/52d7924f1522bdf917ea912fc416ae55b3229ebb)
+
+> Axis type of “array” is a bit confusing. It basically means “unknown”?
+
+It could mean "unknown" if there are no other coordinate systems that label it. More importantly, it serves as a placeholder
+for operations that work in "pixel coordinates," not "physical coordinates."
+I added some clarifying text [1].
+
+
+> arrayCoordinateSystem specifying dimension names is now redundant with zarr v3 dimension names
+
+Good point, and I agree; but the zarr spec is more permissive than the ngff spec, specifically because it 
+[allows null or duplicate `dimension_names`](https://zarr-specs.readthedocs.io/en/latest/v3/core/v3.0.html#dimension-names).
+As a result, we will need require adding additional constraints to the dimension names that they be unique and not null [2].
+This is currently a requirement for the names of axes](https://ngff.openmicroscopy.org/0.5/index.html#axes-md)
+
+## References
+
+[1] [Motivation and clarification of array coordinate systems](https://github.com/bogovicj/ngff/commit/db1e7d1c16206125a83a9c7bd4ea2146f01143e7)
+[2] [constraints on zarr `dimension_names`](https://github.com/bogovicj/ngff/commit/cd89608ea3baca8ea36447f88fbb4e3ea1909299)
