@@ -28,6 +28,29 @@ There are now some examples provided using the metadata proposed in RFC-4 that w
 
 ### CoordinateSystem
 
+> Is the 'name' of the coordinate system where users should try to
+> standardize strings that let multiple datasets that live in the same
+> space be visualized together? 
+
+Yes, exactly. 
+
+> Can we add to the spec a location or manner where such 'common' spaces are written down.
+
+We agree that this would be valuable, but feel it is out-of-scope for this
+RFC. We can imagine a future in which the spec itself does not contain the
+location of the common spaces but rather defines a way for that location to
+be written down. The point being that we hope the details of this idea for
+'common' spaces can be discussed and agreed upon in the future. 
+
+> there are applications, ... where the
+> values of the array reflect the height of an object, and so are spatial,
+> so it's not clear where such a relationship or 3d coordinate
+
+We agree that a better annotating for the value(s) stored in an image would be valuable, but
+feel is that this is also out-of-scope for this RFC. A discussion has [begun on github](https://github.com/ome/ngff/issues/203)
+that we hope continues.
+
+
 ### “Array” coordinate system
 
 Thank you for the feedback, we have edited this section with motivation and clarity[1]. We hope that the edits along with motivating examples will.
@@ -59,7 +82,7 @@ Yes, thank you for catching this. It is now [correct](https://github.com/bogovic
 
 ### Parameters
 
-The feedback is much eppreciated. Your point of view that the spec should
+The feedback is much appreciated. Your point of view that the spec should
 
 > place the named parameters field at the same level as the 'type' field, as is written in the current draft.
 
@@ -75,8 +98,8 @@ is the consensus, so the parameters will remain as they are.
 > effectively changing without it being properly versioned.
 
 This is an important point.  Exactly how and if linking to outside artifacts is allowed may belong in a broader community
-discussion. To keeep resources relevent to, but "outside of" this RFC versioned and stable,
-they will be posted and archiveed in a permanent repository, and assigned a DOI.
+discussion. To keep resources relevant to, but "outside of" this RFC versioned and stable,
+they will be posted and archived in a permanent repository, and assigned a DOI.
 The next revision of this RFC will refer to that specific version.
 
 
@@ -126,6 +149,13 @@ Good point, and I agree; but the zarr spec is more permissive than the ngff spec
 [allows null or duplicate `dimension_names`](https://zarr-specs.readthedocs.io/en/latest/v3/core/v3.0.html#dimension-names).
 As a result, we will need require adding additional constraints to the dimension names that they be unique and not null [2].
 This is currently a requirement for the names of axes](https://ngff.openmicroscopy.org/0.5/index.html#axes-md)
+
+
+## Other 
+
+
+
+
 
 ## References
 
