@@ -1,4 +1,4 @@
-# RFC-5: Response 1 (2025-02-06 version)
+# RFC-5: Response 1 (2025-05-06 version)
 
 The authors extend their most sincere thanks and appreciation to all the reviewers of this RFC.
 
@@ -18,11 +18,15 @@ Daniel Toloudis, David Feng, Forrest Collman, and Nathalie Gaudreault at the All
 
 ### Axes metadata
 
-We agree that additional motivating examples would be helpful.
+We agree that the issue raised here with respect to axis alignment and orientation is important and additional motivating
+examples would be helpful. We will coordinate with the authors of RFC-4 which we agree is essential for ensuring consistent 
+orientations of spatial (and maybe other) axis types.
 
+There are now some examples provided using the metadata proposed in RFC-4 that will clarify this point.
+
+(TODO link)
 
 ### CoordinateSystem
-
 
 ### “Array” coordinate system
 
@@ -42,8 +46,38 @@ they seem not to have been reconsidered since they
 
 ### coordinateTransformations
 
+> We think that conforming reading MUST be able to parse Affine transformations.
+
+TODO
+
+> Rotation: there appears to be inconsistency in the doc
+> ... 
+> Should it be `List[List[number]]`?
+
+Yes, thank you for catching this. It is now [correct](https://github.com/bogovicj/ngff/commit/649f6234c2a2bef475b5873d1982f70cd6ee8d07).
+
 
 ### Parameters
+
+The feedback is much eppreciated. Your point of view that the spec should
+
+> place the named parameters field at the same level as the 'type' field, as is written in the current draft.
+
+is the consensus, so the parameters will remain as they are. 
+
+### Process
+
+> Should it be customary to provide a sample implementation? 
+
+
+> Is it okay for an RFC to link out to other things, rather than being
+> completely self-contained? If it's not there is a danger of it
+> effectively changing without it being properly versioned.
+
+This is an important point.  Exactly how and if linking to outside artifacts is allowed may belong in a broader community
+discussion. To keeep resources relevent to, but "outside of" this RFC versioned and stable,
+they will be posted and archiveed in a permanent repository, and assigned a DOI.
+The next revision of this RFC will refer to that specific version.
 
 
 ## Review 2
