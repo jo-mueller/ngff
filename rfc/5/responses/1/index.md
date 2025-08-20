@@ -97,7 +97,7 @@ is the consensus, so the parameters will remain as they are.
 > completely self-contained? If it's not there is a danger of it
 > effectively changing without it being properly versioned.
 
-This is an important point.  Exactly how and if linking to outside artifacts is allowed may belong in a broader community
+This is an important point. Exactly how and if linking to outside artifacts is allowed may belong in a broader community
 discussion. To keep resources relevant to, but "outside of" this RFC versioned and stable,
 they will be posted and archived in a permanent repository, and assigned a DOI.
 The next revision of this RFC will refer to that specific version.
@@ -109,6 +109,178 @@ The next revision of this RFC will refer to that specific version.
 Swedlow from the University of Dundee.
 
 ### Clarifications
+
+>> “Coordinate transformations from array to physical coordinates MUST be stored in multiscales, and MUST be duplicated in the attributes of the zarr array”
+>>
+> Why is this duplication necessary and what does the array zarr.json look like?
+
+Previously, every level of a multiscale dataset was accompanied by a `scale` attribute, om which the amount of downsampling for 
+every level could be inferred. This attribute now needs to be expressed as a coordinate transform oftype: `scale` and needs to be
+present for every scale level. Hence, "duplicated" in this context only means that the transform needs to be specified for every scale
+as a list of coordinate transforms.
+
+An example of a multiscale dataset with a list of `scale` transforms projecting each scale level into the common coordinate system
+for the multiscale dataset is given below:
+
+<details>
+
+```json
+      "multiscales": [
+        {
+          "name": "multiscales",
+          "coordinateSystems": [
+            {
+              "name": "physical",
+              "axes": [
+                {
+                  "type": "space",
+                  "name": "y",
+                  "unit": "micrometer",
+                  "discrete": false
+                },
+                {
+                  "type": "space",
+                  "name": "x",
+                  "unit": "micrometer",
+                  "discrete": false
+                }
+              ]
+            }
+          ],
+          "datasets": [
+            {
+              "path": "s0",
+              "coordinateTransformations": [
+                {
+                  "type": "scale",
+                  "output": "physical",
+                  "input": "",
+                  "name": "transform-name",
+                  "scale": [6.0, 4.0]
+                }
+              ]
+            },
+            {
+              "path": "s1",
+              "coordinateTransformations": [
+                {
+                  "type": "scale",
+                  "output": "physical",
+                  "input": "",
+                  "name": "transform-name",
+                  "scale": [12.0, 8.0]
+                }
+              ]
+            },
+            {
+              "path": "s2",
+              "coordinateTransformations": [
+                {
+                  "type": "scale",
+                  "output": "physical",
+                  "input": "",
+                  "name": "transform-name",
+                  "scale": [24.0, 16.0]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+```
+
+</details>
+
+> In what format or structure is this data stored?
+
+In a simplified way, the root level of the store should resemble this structure:
+
+ ```
+ root
+ ├─── imageA
+ ├─── imageA
+ └─── zarr.json
+ ```
+
+ The top-level `zarr.json` MUST provide information about the `coordinateSystems` as well as the spatial relationship (`coordinateTransformations`)
+ between them:
+
+ ```json
+ ...
+ ome: {
+    "version": "0.6",
+    "coordinateSystems": [
+        {
+            "name": "coordinate_system_image_A",
+            "axes": ["axes types, units, etc"]
+            },
+        {
+            "name": "coordinate_system_image_B",
+            "axes": ["axes types, units, etc"]
+        }
+    ],
+    "coordinateTransformations": [
+        {
+            "type": "affine",
+            "input": "coordinate_system_image_A",
+            "output": "coordinate_system_image_B",
+            "affine": ["actual affine matrix"],
+            "name": "Transform that aligns imageA with imageB"
+        }
+    ]
+
+ }
+ ```
+
+
+
+> Does the parent zarr group contain the paths to the child images?
+
+While the `path` of an image in the zarr store is part of the `datasets` attributes, the spatial relationship between two or more images
+is not expressed through mutual parent/child linkage, but rather by reference to `coordinateSystems` which may be shared by two or more
+images. The transformation between different `coordinateSystems` is then encapsulated by the `input` and `output` parameters inside the
+respective `coordinateTransformations`.
+
+> Do the top-level `coordinateTransformations` refer to coordinateSystems that are in child images?
+
+While a parent/child relationship may be useful in some usecases (multiscales, crops), it is not an appropriate descriptor for the behavior
+ of proposed transform specification. `coordinateTransformations` serve the strict purpose of providing a transformation from one coordinate
+ system (`input`) into another (`output`). In the case of cropped image data (image *B* being cropped from image *A*), both images must provide
+ `coordinateTransformations` to their common `coordinateSystems` to accurately describe the relationship.
+
+ > Are these child images referred to via a /path/to/volume/zarr.json?
+
+ The proposed RFC is intended for use with images that share a spatial relationship, rather than necessarily a parent/child relationship. With
+ that in mind, images are to be placed side-by-side at the root level like this:
+
+ ```
+ root
+ ├─── imageA
+ ├─── imageA
+ └─── zarr.json
+ ```
+ 
+ The only valid exception to this scheme that allows storing images with `coordinateTransformations` in subdirectories of top-level images are
+ multiscale images.
+
+ > What is the expectation for a conforming viewer when opening the top-level group? Should the viewer also open and display all the child images?
+
+ This is an important and valid point to raise. The *in silico* behavior that comes to mind, is to open all present images along with their
+ correct transformations as separate layers, which can be toggled on or off. For large numbers of spatially related images (i.e., registered, overlapping
+ tiles of a larger image), this approachmay yield important practical limitations. An intermediate solution for viewers could be to provide a minimal
+ browser widget to open and display selective items from the image.
+
+ > It seems like the top-level zarr group with "coordinate transformations describing the relationship between two image coordinate systems" introduces a 
+ “Collection” of images. The discussion on adding support for Collection to the specification has been captured in Collections Specification but it has
+ not been introduced yet.
+ > 
+ > Are you also proposing to introduce support for Collection as part of this RFC? In our opinion, this is probably out of scope at this stage, but an example might clarify the importance in the authors’ view.
+
+ It is true that storing several images under the same root-store as proposed here resembles the proposed "Collections". However, the spatial relationship
+ between images in a root zarr provides an important distinction to arbitrary collections of unrelated images. Other solutions like storing images with
+ spatial relationships into separate files along with references to each other come at the risk of putting the spatial reationship at the mercy of tidy file
+ management. With this proposal, we seek a self-contained solution to spatial relationships, which require storage in a common location. 
+ Lastly, while images with coordinate transforms in a root zarr provide a kind of collection, they don't do so more than a multiscale, a plate or a well object does.
 
 
 ### Implementation section
