@@ -169,7 +169,16 @@ be an undue burden. We agreed with and shared this concern.
 
 As a result, a group of hackathon attendees agreed to a set of constraints
 that would decrease the burden on implementors, without reducing the
-expressibility [3].
+expressibility [3]. To summarize the constraints:
+
+* The first coordinate system in the list is a *default* coordinate system
+    * ususally an image's "native" physical coordinate system
+* There MUST be exactly one coordinate transformation per dataset in the multiscales whose output is the *default* coordinate system
+    * as a result, the field was renamed to the singular `coordinateTransformation` and changed from a json list to json object.
+    * this transformation SHOULD be simple (defined precisely in the spec).
+* Any other transformations belong outside the datasets
+    * the `input`s of these transformations MUST be the *default* coordinate system
+    * the `output`s of these transformations are the other coordinate systems
 
 ### Example 1
 
