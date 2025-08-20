@@ -153,11 +153,41 @@ This is currently a requirement for the names of axes](https://ngff.openmicrosco
 
 ## Other 
 
+In conversations, at the OME community meeting and hackathon in April 2025,
+several attendees expressed confusion about how to specify situations with
+many coordinate systems, specifically when there exist more than one
+physical coordinate system. 
 
+The main questions had to do with whether there were any constraints
+regarding the coordinate transforms inside the multiscales' dataset metadata
+and those outside the datasets (that were previously said to apply to all
+scale levels). Implementers were concerned that if the transformation
+corresponding to a particular coordinate system could be found anywhere,
+that there would be a large number of valid ways to describe the same set of
+coordinate systems and transformations (see the examples below). This would
+be an undue burden. We agreed with and shared this concern.
 
+As a result, a group of hackathon attendees agreed to a set of constraints
+that would decrease the burden on implementors, without reducing the
+expressibility [3].
+
+### Example 1
+
+* There exist two coordinate systems "A", and "B" and two datasets "0", and "1".
+* There exist two coordinate transforms in the "0" dataset, one from "0" to "A", and one from "0" to "B".
+* There exist two coordinate transforms in the "1" dataset, one from "1" to "A", and one from "1" to "B".
+* There exist no coordinate transformations outside the datasets.
+
+### Example 2
+
+* There exist two coordinate systems "A", and "B" and two datasets "0", and "1".
+* There exist one coordinate transforms in the "0" dataset, from "0" to "A".
+* There exist one coordinate transforms in the "1" dataset, from "1" to "A".
+* There exist one coordinate transforms outside the datasets, from "A" to "B".
 
 
 ## References
 
 [1] [Motivation and clarification of array coordinate systems](https://github.com/bogovicj/ngff/commit/db1e7d1c16206125a83a9c7bd4ea2146f01143e7)
 [2] [constraints on zarr `dimension_names`](https://github.com/bogovicj/ngff/commit/cd89608ea3baca8ea36447f88fbb4e3ea1909299)
+[3] [constraints on ](https://github.com/bogovicj/ngff/commit/3822dd0d9d2e388a12b6b74d0bffc7a215298e42)
