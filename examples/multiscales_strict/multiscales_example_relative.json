@@ -1,6 +1,7 @@
 {
     "multiscales": [
         {
+            "version": "0.5-dev",
             "name": "example",
             "coordinateSystems" : [
                 {
@@ -61,7 +62,15 @@
                 "scale": [0.1, 1.0, 0.5, 0.5, 0.5],
                 "input" : "array_0",
                 "output" : "exampleCoordinateSystem"
-            }]
+            }],
+            "type": "gaussian",
+            "metadata": {
+                "description": "the fields in metadata depend on the downscaling implementation. Here, the parameters passed to the skimage function are given",
+                "method": "skimage.transform.pyramid_gaussian",
+                "version": "0.16.1",
+                "args": "[true]",
+                "kwargs": {"multichannel": true}
+            }
         }
     ]
 }
