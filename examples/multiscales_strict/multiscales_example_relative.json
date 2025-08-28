@@ -1,7 +1,7 @@
 {
     "multiscales": [
         {
-            "version": "0.5-dev",
+            "version": "0.6.dev1",
             "name": "example",
             "coordinateSystems" : [
                 {
