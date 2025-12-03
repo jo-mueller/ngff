@@ -1,0 +1,57 @@
+name: Build NGFF Specification
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+env:
+  NGFF_SPEC_REPO: https://github.com/ome/ngff-spec
+
+jobs:
+  build:
+    name: Build ngff-spec pages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout NGFF repository
+        uses: actions/checkout@v4
+        with:
+          submodules
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install git+https://github.com/ome/ngff-spec.git
+
+      - name: Build ngff-spec versions
+        run: |
+          # Create output directories
+          mkdir -p _prebuild/0.6 _prebuild/latest
+
+          # Build version 0.6.dev2
+          curl -sL "${NGFF_SPEC_REPO}/archive/refs/tags/0.6.dev2.tar.gz" | tar -xz
+          cd ngff-spec-0.6.dev2
+          python ngff_spec/pre_build.py
+          jupyter book build --html --ci
+
+          mv ./_build/html ../_prebuild/0.6
+          cd ..
+          rm -rf ngff-spec-0.6.dev2
+
+      - name: Upload ngff-spec pages artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ngff-spec-builds-${{ github.sha }}
+          path: _prebuild/
+          retention-days: 5
+          if-no-files-found: error
+
+          
+    
