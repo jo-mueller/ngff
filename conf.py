@@ -228,13 +228,10 @@ def post_process():
 
             # copy to bikeshed output
             source = os.path.join(
-                submodule_dir, "ngff_spec", "_build", "html"
+                submodule_dir, "ngff_spec"
             )
-            
-            # Use ReadTheDocs output directory if available, otherwise fallback to _build/html
-            output_base = os.environ.get('READTHEDOCS_OUTPUT', '_build')
             target = os.path.join(
-                output_base, "html", target_dir
+                "_bikeshed", target_dir
             )
             if os.path.exists(target):
                 shutil.rmtree(target)
