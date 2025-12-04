@@ -228,7 +228,7 @@ def post_process():
 
             # copy to bikeshed output
             source = os.path.join(
-                submodule_dir, "ngff_spec"
+                submodule_dir, "ngff_spec" , "_build", "html"
             )
             target = os.path.join(
                 "_bikeshed", target_dir
