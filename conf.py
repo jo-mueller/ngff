@@ -225,13 +225,13 @@ def post_process():
             os.chdir("ngff_spec")
 
             # set BASE_URL environment variable for jupyter-book
-            os.environ["BASE_URL"] = f"{target_dir}/_build/html/"
+            os.environ["BASE_URL"] = f"{target_dir}/"
             subprocess.check_call(["jupyter", "book", "build", "--ci", "--html"])
             os.chdir("../..")
 
             # copy to bikeshed output
             source = os.path.join(
-                submodule_dir, "ngff_spec"
+                submodule_dir, "ngff_spec/_build/html"
             )
             target = os.path.join(
                 "_bikeshed", target_dir
