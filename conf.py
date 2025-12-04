@@ -230,8 +230,11 @@ def post_process():
             source = os.path.join(
                 submodule_dir, "ngff_spec", "_build", "html"
             )
+            
+            # Use ReadTheDocs output directory if available, otherwise fallback to _build/html
+            output_base = os.environ.get('READTHEDOCS_OUTPUT', '_build')
             target = os.path.join(
-                "_build", "html", target_dir
+                output_base, "html", target_dir
             )
             if os.path.exists(target):
                 shutil.rmtree(target)
