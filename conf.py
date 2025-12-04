@@ -223,12 +223,15 @@ def post_process():
             # prebuild ngff-spec examples and schemas
             subprocess.check_call([sys.executable, "ngff_spec/pre_build.py"])
             os.chdir("ngff_spec")
+
+            # set BASE_URL environment variable for jupyter-book
+            os.environ["BASE_URL"] = f"{target_dir}/"
             subprocess.check_call(["jupyter", "book", "build", "--ci", "--html"])
             os.chdir("../..")
 
             # copy to bikeshed output
             source = os.path.join(
-                submodule_dir, "ngff_spec" , "_build", "html"
+                submodule_dir, "ngff_spec"
             )
             target = os.path.join(
                 "_bikeshed", target_dir
