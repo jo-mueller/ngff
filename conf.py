@@ -225,7 +225,7 @@ def post_process():
             os.chdir("ngff_spec")
 
             # set BASE_URL environment variable for jupyter-book
-            os.environ["BASE_URL"] = f"{target_dir}/"
+            os.environ["BASE_URL"] = f"ngff.openmicroscopy.org/{target_dir}/_build/html/"
             subprocess.check_call(["jupyter", "book", "build", "--ci", "--html"])
             os.chdir("../..")
 
