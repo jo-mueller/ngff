@@ -164,6 +164,7 @@ def post_process():
     import os
     import shutil
     import subprocess
+    import sys
 
     versions = ["latest"] + glob.glob("[0-9]*")
     for version in versions:
@@ -173,6 +174,10 @@ def post_process():
         output_file = index_file.replace("bs", "html")
         output_dir = os.path.dirname(output_file)
         target_dir = os.path.join("_bikeshed", output_dir)
+
+        if not os.path.exists(index_file):
+            print(f"Skipping {version}, no index.bs found")
+            continue
 
         run_bikeshed = True
 
@@ -200,6 +205,37 @@ def post_process():
             gen_version(version)
         finally:
             os.chdir(d)
+
+    # build ngff-spec docs
+    ngff_spec_versions = [
+        {"submodule": "0.6.dev2", "target": "0.6.dev2"},
+    ]
+
+    for spec_version in ngff_spec_versions:
+        submodule_dir = spec_version["submodule"]
+        target_dir = spec_version["target"]
+
+        if os.path.exists(submodule_dir):
+            print(f"Building ngff-spec docs for version {target_dir}...")
+
+            os.chdir(submodule_dir)
+
+            # prebuild ngff-spec examples and schemas
+            subprocess.check_call([sys.executable, "ngff_spec/pre_build.py"])
+            os.chdir("ngff_spec")
+            subprocess.check_call(["jupyter", "book", "build", "--ci", "--html"])
+            os.chdir("../..")
+
+            # copy to bikeshed output
+            source = os.path.join(
+                submodule_dir, "ngff_spec", "_build", "html"
+            )
+            target = os.path.join(
+                "_build", "html", target_dir
+            )
+            if os.path.exists(target):
+                shutil.rmtree(target)
+            shutil.copytree(source, target)
 
 
 post_process()

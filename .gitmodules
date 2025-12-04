@@ -22,3 +22,6 @@
 	path = latest
 	url = https://github.com/ome/ngff
 	branch = v0.5
+[submodule "0.6.dev2"]
+	path = 0.6.dev2
+	url = https://github.com/ome/ngff-spec.git
