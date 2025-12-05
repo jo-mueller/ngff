@@ -225,6 +225,8 @@ def post_process():
             os.chdir("ngff_spec")
 
             # set BASE_URL environment variable for jupyter-book
+            # For GitHub Pages: /repo-name/path/
+            os.environ["BASE_URL"] = f"/ngff/{target_dir}/"
             subprocess.check_call(["jupyter", "book", "build", "--ci", "--html"])
             os.chdir("../..")
 
