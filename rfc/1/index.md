@@ -367,7 +367,8 @@ contact **Reviewers** to see if their recommendations have changed.
 
 > 🕑 Authors responses to Reviewers should be returned to the Editors in less than two weeks.
 
-(anchor-rebuttal-r6)= This brings a critical, and possibly iterative, decision point (R6).  If all **Reviewers** `approve` and there are no further changes needed, the RFC can progress to S1 as soon as there are two in-progress implementations. If the **Reviewers** do _not_ approve, then the **Editors** will make one of three decisions (R7):
+(anchor-rebuttal-r6)=
+This brings a critical, and possibly iterative, decision point (R6).  If all **Reviewers** `approve` and there are no further changes needed, the RFC can progress to S1 as soon as there are two in-progress implementations. If the **Reviewers** do _not_ approve, then the **Editors** will make one of three decisions (R7):
 
 * The **Editors** MAY provide **Authors** a list of necessary changes. These will be based on the **Reviewers** suggestions but possibly modified, e.g., to remove contradictions.
 * The **Editors** MAY decide that the RFC is to be closed (R9). This is the decision that SHOULD be chosen if there is a unanimous `Reject` recommendation. The **Authors** MAY then decide to re-draft a new RFC (D2).
