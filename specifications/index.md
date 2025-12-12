@@ -6,10 +6,8 @@ OME-Zarr files have standardized metadata (that is the OME portion of "OME-Zarr"
 The current released version of the OME-Zarr specification is [0.5](0.5/ngff_spec/specification.md).
 
 ```{toctree}
-:maxdepth: 1
 :caption: available specifications
 
-0.5/ngff_spec/specification.md
-0.6.dev2/ngff_spec/specification.md
-
+0.5/ngff_spec/index.md
+0.6.dev2/ngff_spec/index.md
 ```
