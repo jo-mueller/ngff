@@ -3,6 +3,7 @@
 */index.html
 _build
 _bikeshed
+_schemas
 .tox
 .vscode
 .*plist

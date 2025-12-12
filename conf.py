@@ -30,6 +30,9 @@ exclude_patterns = [
     "README.md",
     "LICENSE.md",
     "CONTRIBUTING.md",
+    "**/README.md",
+    "**/LICENSE.md",
+    "**/CONTRIBUTING.md",
 ]
 
 redirects = {
@@ -56,7 +59,7 @@ html_js_files = [
 ]
 
 html_extra_path = [
-    "_bikeshed",
+    "_schemas",
 ]
 
 # ####################################
@@ -166,49 +169,52 @@ def post_process():
     import subprocess
     import sys
 
-    versions = ["latest"] + glob.glob("[0-9]*")
-    for version in versions:
+    # versions = ["latest"] + glob.glob("[0-9]*")
+    # for version in versions:
 
-        # Run bikeshed
-        index_file = f"{version}/index.bs"
-        output_file = index_file.replace("bs", "html")
-        output_dir = os.path.dirname(output_file)
-        target_dir = os.path.join("_bikeshed", output_dir)
+    #     # Run bikeshed
+    #     index_file = f"{version}/index.bs"
+    #     output_file = index_file.replace("bs", "html")
+    #     output_dir = os.path.dirname(output_file)
+    #     target_dir = os.path.join("_bikeshed", output_dir)
 
-        if not os.path.exists(index_file):
-            print(f"Skipping {version}, no index.bs found")
-            continue
+    #     if not os.path.exists(index_file):
+    #         print(f"Skipping {version}, no index.bs found")
+    #         continue
 
-        run_bikeshed = True
+    #     run_bikeshed = True
 
-        # Give the loop a chance to skip files if no build is needed/requested
-        if "BIKESHED" not in os.environ and os.path.exists(output_file):
-            src_time = os.path.getmtime(index_file)
-            out_time = os.path.getmtime(output_file)
-            if src_time < out_time:
-                print(f"{index_file} unchanged")
-                run_bikeshed = False
+    #     # Give the loop a chance to skip files if no build is needed/requested
+    #     if "BIKESHED" not in os.environ and os.path.exists(output_file):
+    #         src_time = os.path.getmtime(index_file)
+    #         out_time = os.path.getmtime(output_file)
+    #         if src_time < out_time:
+    #             print(f"{index_file} unchanged")
+    #             run_bikeshed = False
 
-        if run_bikeshed:
-            subprocess.check_call(
-                f"bikeshed spec {index_file} {output_file}", shell=True,
-            )
+    #     if run_bikeshed:
+    #         subprocess.check_call(
+    #             f"bikeshed spec {index_file} {output_file}", shell=True,
+    #         )
 
-        if os.path.exists(target_dir):
-            shutil.rmtree(target_dir)
-        shutil.copytree(output_dir, target_dir)
+    #     if os.path.exists(target_dir):
+    #         shutil.rmtree(target_dir)
+    #     shutil.copytree(output_dir, target_dir)
 
-        # Run json-schema-for-humans
-        try:
-            d = os.getcwd()
-            os.chdir("_bikeshed")
-            gen_version(version)
-        finally:
-            os.chdir(d)
+    #     # Run json-schema-for-humans
+    #     try:
+    #         d = os.getcwd()
+    #         os.chdir("_bikeshed")
+    #         gen_version(version)
+    #     finally:
+    #         os.chdir(d)
+
+
 
     # build ngff-spec docs
     ngff_spec_versions = [
-        {"submodule": "0.6.dev2", "target": "0.6.dev2"},
+        {"submodule": "specifications/0.5", "target": "0.5"},
+        {"submodule": "specifications/0.6.dev2", "target": "0.6.dev2"},
     ]
 
     for spec_version in ngff_spec_versions:
@@ -225,21 +231,19 @@ def post_process():
             os.chdir("ngff_spec")
 
             # Set BASE_URL from environment (for GitHub Pages) or fallback
-            base_url = os.environ.get("BASE_URL", f"/{target_dir}")
-            os.environ["BASE_URL"] = f"{base_url}/{target_dir}/"
             subprocess.check_call(["jupyter", "book", "build", "--ci", "--html"])
-            os.chdir("../..")
+            os.chdir("../../..")
 
-            # copy to bikeshed output
-            source = os.path.join(
-                submodule_dir, "ngff_spec/_build/html"
-            )
-            target = os.path.join(
-                "_bikeshed", target_dir
-            )
+            # copy examples and schemas to bikeshed output
+            schema_files = glob.glob(os.path.join(
+                submodule_dir, "ngff_spec/schemas", '*.schema'), recursive=True)
+            target = Path("_schemas") / target_dir / "schemas"
             if os.path.exists(target):
                 shutil.rmtree(target)
-            shutil.copytree(source, target)
+            os.makedirs(target, exist_ok=True)
+
+            for schema_file in schema_files:
+                shutil.copy2(schema_file, target)
 
 
 post_process()
