@@ -1,4 +1,5 @@
 # RFCs
+(rfcs)=
 
 ```{toctree}
 :maxdepth: 1
