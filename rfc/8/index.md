@@ -462,7 +462,6 @@ See more examples at https://github.com/normanrz/ngff-rfc8-collection-examples/.
             "coordinateSystems": [
                 {
                   "id": "world",
-                  "name": "world",
                   "axes": [...]
                 }
             ]
@@ -952,7 +951,6 @@ In a change from the previous specification, coordinate systems are referenced u
       "coordinateSystems": [
         {
           "id": "world",
-          "name": "world",
           "axes": [...]
         }
       ],
@@ -1002,7 +1000,6 @@ The `coordinateSystems` attribute is an array of objects with the following fiel
 | Field | Type | Required? | Notes |
 | - | - | - | - |
 | `"id"` | string | no | Value MUST be a string that matches `[a-zA-Z0-9-_.]+`. IDs MUST be unique within the JSON document. |
-| `"name"` | string | yes | Value MUST be a non-empty string, as defined in RFC-5. |
 | `"axes"` | array of strings | yes | Value MUST be an array of axes, as defined in RFC-5. |
 
 
