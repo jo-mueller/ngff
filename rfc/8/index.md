@@ -267,7 +267,6 @@ This new interface replaces the multiscale metadata defined in the previous vers
 | `"name"` | string | yes | Value MUST be a non-empty string intended for human-readable display. Names MUST be unique within the enclosing collection. |
 | `"nodes"` | array | no | Value MUST be an array of `Singlescale` objects. |
 | `"path"` | object | no | Value MUST be a `Path` object. |
-| `"attributes"` | object | no | Value MUST be a dictionary. [See attributes section](#attributes). |
 | `"attributes"` | object | no | Value MUST be a dictionary. [See attributes section](#attributes). Required because it MUST contain `coordinateTransformations` and `coordinateSystems`. [See attributes section](#attributes).|
 
 Either `"nodes"` or `"path"` MUST be present, but not both.
@@ -448,10 +447,10 @@ See more examples at https://github.com/normanrz/ngff-rfc8-collection-examples/.
                 },
                 ... // arbitrary user-defined metadata
             },
-            "name": "nested_collection",
-            "type": "collection",
-            }
-        }, ... ],
+          },
+          {
+              "name": "nested_collection",
+              "type": "collection",
               "path": {
                 "type": "json",
                 "path": "./nested_collection.json"
@@ -473,37 +472,39 @@ See more examples at https://github.com/normanrz/ngff-rfc8-collection-examples/.
         "version": "0.x",
         "type": "collection",
         "name": "example",
-        "attributes": {
-            "coordinateSystems": [
-                {
-                  "id": "world",
-                  "axes": [...]
-                }
-            ]
-        },
-        "nodes": [{
+        "nodes": [
+          {
             "name": "raw",
             "type": "multiscale",
-            "nodes": [{
+            "nodes": [
+              {
                 "id": "raw_0",
                 "name": "raw_0",
                 "type": "singlescale",
                 "path": {
                   "type": "zarr",
                   "path": "./raw/0"
-                },
-                "attributes": {
-                  "coordinateTransformations": [
-                    {
-                      "type": "scale",
-                      "scale": [1, 1, 1],
-                      "input": "raw_0",
-                      "output": "world"
-                    }
-                  ]
                 }
-            }, ...]
-        }, ... ]
+              }
+            ],
+            "attributes": {
+              "coordinateTransformations": [
+                {
+                  "type": "scale",
+                  "scale": [1, 1, 1],
+                  "input": {"node": "raw_0"},
+                  "output": {"id": "physical"}
+                }
+              ],
+              "coordinateSystems": [
+                {
+                  "id": "physical",
+                  "axes": [...]
+                }
+              ]
+            }
+          }
+        ]
     }
 }
 ```
@@ -963,26 +964,28 @@ In a change from the previous specification, coordinate systems are referenced u
     "type": "collection",
     "name": "tiles",
     "attributes": {
-      "coordinateSystems": [
-        {
-          "id": "world",
-          "axes": [...]
-        }
-      ],
-      "coordinateTransformations": [
-        {
-          "type": "translation",
-          "translation": [0, 0, 100],
-          "input": "tile_0",  // references collection node ID
-          "output": "world"  // references coordinate system ID
-        },
-        {
-          "type": "translation",
-          "translation": [100, 0, 0],
-          "input": "tile_1",  // references collection node ID
-          "output": "world"  // references coordinate system ID
-        }
-      ]
+      "scene": {
+        "coordinateSystems": [
+          {
+            "id": "world",
+            "axes": [...]
+          }
+        ],
+        "coordinateTransformations": [
+          {
+            "type": "translation",
+            "translation": [0, 0, 100],
+            "input": {"node": "tile_0", "id": "physical"},  // references coordinate system "physical" defined in tile_0
+            "output": {"id": "world"}  // references coordinate system "world" defined in same node
+          },
+          {
+            "type": "translation",
+            "translation": [100, 0, 0],
+            "input": {"node": "tile_1", "id": "physical"},  // references coordinate system "physical" defined in tile_1
+            "output": {"id": "world"}  // references coordinate system "world" defined in same node
+          }
+        ]
+      }
     },
     "nodes": [
       {
@@ -1002,7 +1005,7 @@ In a change from the previous specification, coordinate systems are referenced u
           "type": "zarr",
           "path": "./tile_1.zarr"
         }
-      },
+      }
     ]
   }
 }
@@ -1030,12 +1033,46 @@ The `coordinateTransformations` field is an array of objects with the following 
 
 Additional fields MAY be added as required by the transform type.
 
-Please note that the semantics of the `input` and `output` fields are changed from name-based to reference-based (ID or reference object) compared to RFC-5.
+The `input` and `output` fields contain the following fields:
+
+| Field | Type | Required? | Notes |
+| - | - | - | - |
+| `"node"` | string | no | Value MUST be a string that matches `[a-zA-Z0-9-_.]+`, which corresponds to a node id. Required when referencing a coordinate system in a different node. |
+| `"id"` | string | no | Value MUST be a string that matches `[a-zA-Z0-9-_.]+`, which corresponds to a coordinate system id |
+
+Depending on the context, different fields are required:
+
+| Context | `input` | `output` |
+| - | - | - |
+| **scene** | {"node": "imageA", "id": "physical" } | { "node": "imageB", "id": "physical" } |
+| **Multiscale > attributes > coordinateTransformations** | { "node": "scale0"} | { "node": "image", "id": "physical" } |
+
+**Multiscale > attributes > coordinateTransformations**: In the context of multiscales transformations, the following requirements apply:
+- The `input` field MUST reference a [singlescale node](#singlescale-node) within the same multiscale,
+  and the `node` field MUST be present.
+  The `id` field MAY be omitted or null.
+- The `output` field MUST reference the multiscale itself via the `node` field and a coordinate system via the `id` field.
+
+**Node/Multiscales > attributes > coordinateTransformations**: In the context of node-level transformations, the following requirements apply:
+- The `input` field MUST reference a coordinate system via the `id` field.
+- The `output` field MUST reference a coordinate system via the `id` field.
+- If the referenced coordinate system is in the same node, the `node` field MAY be omiited or null.
+  If the referenced coordinate system is in a different node, the `node` field MUST reference the node via its ID.
+
 
 #### Scene
 
-The `scene` metadata is replaced by this proposal.
-A scene of images can now be represented as a collection of multiscale images with attached coordinate transforms.
+The `scene` metadata is an objects with the following fields:
+
+| Field | Type | Required? | Notes |
+| - | - | - | - |
+| `"coordinateSystems"` | array | no | Values MUST be valid instances of [coordinate systems](#coordinate-systems) |
+| `"coordinateTransformations"` | array | yes | Values MUST be valid instances of [coordinate transformations](#coordinate-transformations) |
+
+A `scene` metadata block can be defined in the `attributes` of a collection to enrich the collection with spatial information of the nodes within the collection.
+The `scene` field allows to clearly distinguish between the spatial information pertaining to an individual multiscale image (which is stored in the `attributes` of the multiscale)
+and the spatial information pertaining to the collection of images (which is stored in the `attributes` of the collection).
+
 
 ### Metadata storage
 
