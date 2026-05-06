@@ -210,6 +210,13 @@ Images may be added as nodes to multiple collections.
 - Make a new home for HCS, bioformats2raw.layout, labels and scene metadata
 - Incorporate coordinate systems and transformations
 
+### Design principles
+
+- **Multiscale as atomic unit**: A `Multiscale` node is the fundamental self-describing unit. 
+  It contains all metadata necessary to interpret its spatial semantics without reference to parent or sibling metadata.
+  A multiscale can be copied, moved, or referenced independently.
+- **Collections group; multiscales define**: Collections provide organizational structure and cross-image relationships (e.g., scene transforms).
+  The spatial semantics of individual images remain defined within the multiscale itself.
 
 ### Metadata
 
@@ -261,9 +268,17 @@ This new interface replaces the multiscale metadata defined in the previous vers
 | `"nodes"` | array | no | Value MUST be an array of `Singlescale` objects. |
 | `"path"` | object | no | Value MUST be a `Path` object. |
 | `"attributes"` | object | no | Value MUST be a dictionary. [See attributes section](#attributes). |
+| `"attributes"` | object | no | Value MUST be a dictionary. [See attributes section](#attributes). Required because it MUST contain `coordinateTransformations` and `coordinateSystems`. [See attributes section](#attributes).|
 
 Either `"nodes"` or `"path"` MUST be present, but not both.
 
+`Multiscale` nodes MUST have the following in their `attributes`:
+- a `coordinateTransformations` key, which is an array of transformation objects,
+  that conform to the [coordinate transformations](#coordinate-transformations) specification
+  and only contain a single `scale` or `identity` transformation, or a `sequence` of a `scale` transformation followed by a `translation` transformation.
+  The `input` field of these transformations references the `id` of a `Singlescale` child node.
+  The `output` field references the `id` of a coordinate system defined in `coordinateSystems`.
+- a `coordinateSystems` key, which MUST conform to the [coordinate systems](#coordinate-systems) specification.
 
 #### `Singlescale` Node
 
@@ -276,13 +291,10 @@ This new interface replaces the dataset metadata defined in the previous version
 | `"id"` | string | no | Value MUST be a string that matches `[a-zA-Z0-9-_.]+`. IDs MUST be unique within the JSON document. |
 | `"name"` | string | yes | Value MUST be a non-empty string intended for human-readable display. Names MUST be unique within the enclosing collection. |
 | `"path"` | object | no | Value MUST be a `Path` object. |
-| `"attributes"` | object | yes | Value MUST be a dictionary. Required because it MUST contain `coordinateTransformations`. [See attributes section](#attributes). |
+| `"attributes"` | object | no | Value MUST be a dictionary. |
 
-`Singlescale` nodes MUST have a `coordinateTransformations` key in their `attributes` which conforms to the [coordinate transformations](#coordinate-transformations) specification and only contains `scale` and `translation` transformations.
-
-If the `Singlescale` node is the root node and contained within the `zarr.json` of a Zarr array, the `path` field SHOULD NOT be present. 
-In this case, the `Singlescale` describes the Zarr array.
-Otherwise, the `path` field MUST be present.
+`Singlescale` nodes represent resolution levels within a multiscale pyramid.
+They MUST be inlined within their parent `Multiscale` and do not define independent coordinate systems or transformations.
 
 #### `Path` Interface
 
@@ -422,7 +434,8 @@ See more examples at https://github.com/normanrz/ngff-rfc8-collection-examples/.
         "version": "0.x",
         "type": "collection",
         "name": "jrc_hela-1",
-        "nodes": [{
+        "nodes": [
+          {
             "name": "raw",
             "type": "multiscale",
             "path": {
@@ -435,14 +448,16 @@ See more examples at https://github.com/normanrz/ngff-rfc8-collection-examples/.
                 },
                 ... // arbitrary user-defined metadata
             },
-        }, {
             "name": "nested_collection",
             "type": "collection",
-            "path": {
-              "type": "json",
-              "path": "./nested_collection.json"
             }
         }, ... ],
+              "path": {
+                "type": "json",
+                "path": "./nested_collection.json"
+              }
+          }, ... 
+        ],
         "attributes": {
             ...
         }
@@ -999,7 +1014,7 @@ The `coordinateSystems` attribute is an array of objects with the following fiel
 
 | Field | Type | Required? | Notes |
 | - | - | - | - |
-| `"id"` | string | no | Value MUST be a string that matches `[a-zA-Z0-9-_.]+`. IDs MUST be unique within the JSON document. |
+| `"id"` | string | yes | Value MUST be a string that matches `[a-zA-Z0-9-_.]+`. IDs MUST be unique within the JSON document. |
 | `"axes"` | array of strings | yes | Value MUST be an array of axes, as defined in RFC-5. |
 
 
@@ -1010,8 +1025,8 @@ The `coordinateTransformations` field is an array of objects with the following 
 | Field | Type | Required? | Notes |
 | - | - | - | - |
 | `"type"` | string | yes | Value MUST be a valid coordinate transform type, as defined in RFC-5. |
-| `"input"` | string | yes | Value MUST be a reference to the input coordinate system. |
-| `"output"` | string | yes | Value MUST be a reference to the output coordinate system. |
+| `"input"` | object | yes | Value MUST be a reference to the input coordinate system. |
+| `"output"` | object | yes | Value MUST be a reference to the output coordinate system. |
 
 Additional fields MAY be added as required by the transform type.
 
