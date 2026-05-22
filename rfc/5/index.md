@@ -14,7 +14,7 @@ Add named coordinate systems and expand and clarify coordinate transformations. 
 
 ## Status
 
-This RFC is currently in RFC state `R4` (authors prepare responses).
+This RFC is currently in RFC state `S4` (Update implementations).
 
 | **Role** | Name | GitHub Handle | Institution | Date | Status |
 |----------|------|---------------|-------------|------|--------|
@@ -37,7 +37,7 @@ This RFC is currently in RFC state `R4` (authors prepare responses).
 
 This RFC provides first-class support for spatial and coordinate transformations in OME-Zarr.
 
-Working version title: **0.6.dev3**
+Version associated with this document: **0.6.dev3**
 
 ## Background
 
