@@ -1156,6 +1156,16 @@ choose between different options, or software could choose a default (e.g. the f
 
 ## Changelog
 
-| Date       | Description                  | Link                                                                         |
-| ---------- | ---------------------------- | ---------------------------------------------------------------------------- |
-| 2024-10-08 | RFC assigned and published   | [https://github.com/ome/ngff/pull/255](https://github.com/ome/ngff/pull/255) |
+| Date       | Description                  | Link|
+| -  | -| - |
+| 2024-10-08 | RFC assigned and published | [https://github.com/ome/ngff/pull/255](https://github.com/ome/ngff/pull/255) |
+| 2025-07-01 | First reviews | [Review 1](./reviews/1/index.md), [Review 2](./reviews/2/index.md) |
+| 2025-11-26 | First specification draft published | [https://github.com/ome/ngff-spec/releases/tag/0.6.dev1](https://github.com/ome/ngff-spec/releases/tag/0.6.dev1) |
+| 2025-08-01 | [Revised version submitted and published](./versions/2/index.md) | [https://github.com/ome/ngff/pull/350](https://github.com/ome/ngff/pull/350) |
+| 2025-12-02 | Revised specification published (0.6.dev2) | [https://github.com/ome/ngff-spec/releases/tag/0.6.dev2](https://github.com/ome/ngff-spec/releases/tag/0.6.dev2) |
+| 2025-12-01 | Second reviews, RFC accepted with minor revisions | [Review 1](./reviews/1b/index.md), [Review 2](./reviews/2b/index.md) |
+| 2026-01-16 | RFC revised and published | [https://github.com/ome/ngff/pull/389](https://github.com/ome/ngff/pull/389) |
+| 2026-03-13 | Revised specification published (0.6.dev3) | [https://github.com/ome/ngff-spec/releases/tag/0.6.dev3](https://github.com/ome/ngff-spec/releases/tag/0.6.dev3) |
+| 2026-04-28 | Revised specification published (0.6.dev4) | [https://github.com/ome/ngff-spec/releases/tag/0.6.dev4](https://github.com/ome/ngff-spec/releases/tag/0.6.dev4) |
+
+[Detailed summary of changes](../../specifications/dev/version_history.md)
