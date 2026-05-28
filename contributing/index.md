@@ -30,12 +30,13 @@ The list of authors in this file is organized in two tiers:
 - First category: Those who have contributed to the development of the spec through the RFC process
   in the form of RFC authorship, reviewing, commenting or editorial work.
 - Second category: Those who have contributed in any form to the development of the specification under the [ngff-spec repository](https://github.com/ome/ngff-spec).
-  This includes, but not limited to all contributions to the specification text, schemas, examples or other content in the ngff-spec repository.
+  This includes, but not limited to, all contributions to the specification text, schemas, examples or other content in the ngff-spec repository.
 Upon release of a new version, the list of authors in the `authors.yml` file will be synced to a citeable DOI via Zenodo,
 which can be used for citation of the specification in publications and other works.
 
 To ensure the visibility of all contributions to the broader ecosystem that are not directly related to specification development,
-a list of contributors is maintained in the [ome-zarr-acknowledgements](https://github.com/german-BioImaging/ome-zarr-acknowledgments/) repository.
+a list of contributors is maintained in the [ome-zarr-acknowledgements](https://github.com/german-BioImaging/ome-zarr-acknowledgments/) repository,
+which is displayed [here](community:contributors).
 Any contribution to the NGFF ecosystem can be acknowledged in this repository, including but not limited to
 - contribution to spec development
 - Maintenance of software implementations of ome-zarr
