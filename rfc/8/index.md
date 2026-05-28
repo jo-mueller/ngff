@@ -280,9 +280,9 @@ This new interface replaces the dataset metadata defined in the previous version
 
 `Singlescale` nodes MUST have a `coordinateTransformations` key in their `attributes`, which
 - is an array of transformation objects, that conform to the [coordinate transformations](#coordinate-transformations) specification
-- contain and only contain a single `scale` or `identity` transformation, or a `sequence` of a `scale` transformation followed by a `translation` transformation.
+- contain and only contain a single `scale` transformation, or a `sequence` of a `scale` transformation followed by a `translation` transformation.
 - The `input` field of these transformations references the `id` of the  `Singlescale` node itself.
-- The `output` field references the `name` of a coordinate system defined under `coordinateSystems`.
+- The `output` field references the `id` of a coordinate system defined under `coordinateSystems` in a `Multiscale` node.
 
 #### `Path` Interface
 
@@ -438,7 +438,7 @@ See more examples at https://github.com/normanrz/ngff-rfc8-collection-examples/.
                   "type": "scale",
                   "scale": [1, 1, 1],
                   "input": {"id": "s0"},
-                  "output": {"id": "image_0", "name": "physical"}
+                  "output": {"id": "physical"}
                 }
               ]
             }
@@ -447,7 +447,7 @@ See more examples at https://github.com/normanrz/ngff-rfc8-collection-examples/.
         "attributes": {
           "coordinateSystems": [
             {
-              "name": "physical",
+              "id": "physical",
               "axes": [...]
             }
           ]
@@ -480,7 +480,8 @@ The multiscale group contains the following metadata:
         "attributes": {
           "coordinateSystems": [
             {
-              "name": "physical",
+              "id": "physical",
+              "name": "the_physical_coordinate_system",
               "axes": [...]
             }
           ]
@@ -504,8 +505,7 @@ And the `zarr.json` at the location of the resolution level (`./s0/zarr.json`) c
               "scale": [1, 1, 1],
               "input": {"id": "s0"},
               "output": {
-                "id": "image_0",
-                "name": "physical",
+                "id": "physical",
                 "path": {
                   "type": "json",
                   "path": "../zarr.json"
@@ -586,12 +586,12 @@ And the `zarr.json` at the location of the resolution level (`./s0/zarr.json`) c
                   "type": "scale",
                   "scale": [1, 1, 1],
                   "input": {"id": "raw_0"},
-                  "output": {"name": "physical", "id": "raw"}
+                  "output": {"id": "physical"}
                 }
               ],
               "coordinateSystems": [
                 {
-                  "name": "physical",
+                  "id": "physical",
                   "axes": [...]
                 }
               ]
@@ -1033,7 +1033,8 @@ Coordinate systems and transformations can be stored in two distinct locations:
 
 - For single multiscale or singlescale images, they can be stored in the `ome` key of the `attributes` container in a `zarr.json` file of the multiscales zarr group.
 - For collections of two or more images in a common coordinate system, RFC-5 defines a parent-level metadata format.
-  In this layout, `coordinateTransformations` define relationships between different images or `coordinateSystems`:
+  In this layout, `coordinateTransformations` define relationships between different `coordinateSystems`,
+  which may be associated to multiscale images:
 
 ```jsonc
 {
@@ -1041,14 +1042,15 @@ Coordinate systems and transformations can be stored in two distinct locations:
     {
       "type": "translation",
       "translation": [0, 0, 100],
-      "input": "image_1", // references collection node ID
-      "output": "world" // references coordinate system ID
+      "input": {"name": "physical", "path": "./image_1"}, // references collection node ID
+      "output": {"name": "world"} // references coordinate system ID
     }
   ]
 }
 ```
 
-In a change from the previous specification, coordinate systems are referenced using the [Reference mechanism](#references), i.e. via IDs, and not via names.
+In a change from the previous specification,
+coordinate systems are referenced using the [Reference mechanism](#references), i.e. via IDs, and not via names.
 
 ```jsonc
 {
@@ -1061,7 +1063,7 @@ In a change from the previous specification, coordinate systems are referenced u
       "scene": {
         "coordinateSystems": [
           {
-            "name": "world",
+            "id": "world",
             "axes": [...]
           }
         ],
@@ -1069,14 +1071,26 @@ In a change from the previous specification, coordinate systems are referenced u
           {
             "type": "translation",
             "translation": [0, 0, 100],
-            "input": {"id": "tile_0", "name": "physical"},  // references coordinate system "physical" defined in tile_0
-            "output": {"id": "tiles", "name": "world"}  // references coordinate system "world" defined in same node
+            "input": {
+              "path": {
+                "type": "zarr",
+                "path": "./tile_0.zarr"
+              },
+              "id": "physical"
+              },  // references coordinate system "physical" defined in tile_0
+            "output": {"id": "world"}  // references coordinate system "world" defined in same node
           },
           {
             "type": "translation",
             "translation": [100, 0, 0],
-            "input": {"id": "tile_1", "name": "physical"},  // references coordinate system "physical" defined in tile_1
-            "output": {"id": "tiles", "name": "world"}  // references coordinate system "world" defined in same node
+            "input": {
+              "path": {
+                "type": "zarr",
+                "path": "./tile_1.zarr"
+              },
+              "id": "physical"
+              },  // references coordinate system "physical" defined in tile_1
+            "output": {"id": "world"}  // references coordinate system "world" defined in same node
           }
         ]
       }
@@ -1111,7 +1125,8 @@ The `coordinateSystems` attribute is an array of objects with the following fiel
 
 | Field | Type | Required? | Notes |
 | - | - | - | - |
-| `"name"` | string | yes | Value MUST be a string that matches `[a-zA-Z0-9-_.]+`. Names MUST be unique within the respective collection node id. |
+| `"id"` | string | yes | Value MUST be a string that matches `[a-zA-Z0-9-_.]+`.Id to use when referencing the coordinate system from a transformation. |
+| `"name"` | string | no | Value MUST be a string that matches `[a-zA-Z0-9-_.]+`. More descriptive name for the coordinate system, if needed. |
 | `"axes"` | array of strings | yes | Value MUST be an array of axes, as defined in RFC-5. |
 
 
@@ -1122,8 +1137,8 @@ The `coordinateTransformations` field is an array of objects with the following 
 | Field | Type | Required? | Notes |
 | - | - | - | - |
 | `"type"` | string | yes | Value MUST be a valid coordinate transform type, as defined in RFC-5. |
-| `"input"` | object | yes | Value MUST be a reference to the input coordinate system. |
-| `"output"` | object | yes | Value MUST be a reference to the output coordinate system. |
+| `"input"` | object | yes | Value MUST be a [reference](#references) to the input coordinate system. |
+| `"output"` | object | yes | Value MUST be a [reference](#references) to the output coordinate system. |
 
 Additional fields MAY be added as required by the transform type.
 
@@ -1131,9 +1146,8 @@ The `input` and `output` fields contain the following fields:
 
 | Field | Type | Required? | Notes |
 | - | - | - | - |
-| `"id"` | string | no | Value MUST be a string that matches `[a-zA-Z0-9-_.]+`, which corresponds to a node id. Required when referencing a coordinate system in a different node. |
+| `"id"` | string | yes | Value MUST be a string that matches `[a-zA-Z0-9-_.]+`, which corresponds to a coordinate system node id. |
 | `"path"` | object | no | Value MUST be a `Path` object. Required when referencing a coordinate system at a different path. |
-| `"name"` | string | no | Value MUST be a string that matches `[a-zA-Z0-9-_.]+`, which corresponds to a coordinate system name |
 
 Depending on the context, different fields are required:
 
@@ -1145,15 +1159,16 @@ Depending on the context, different fields are required:
 **Multiscale > attributes > coordinateTransformations**: In the context of multiscales transformations, the following requirements apply:
 - The `input` field MUST reference a [singlescale node](#singlescale-node).
 - The `id` field MUST be present.
-- The `path` field MAY be omitted or null
-- The `name` field MAY be omitted or null.
-- The `output` field MUST reference the multiscale itself via the `id` field and a coordinate system via the `name` field.
+- The `path` field MAY be omitted or null.
+- The `output` fields of all transformations MUST reference the same coordinate system via the `id` field.
 
-**Node/Multiscales > attributes > scene > coordinateTransformations**: In the context of node-level transformations, the following requirements apply:
-- The `input` field MUST reference a coordinate system via the `name` field.
-- The `output` field MUST reference a coordinate system via the `name` field.
-- If the referenced coordinate system is in the same node, the `id` field MAY be omitted or null.
-  If the referenced coordinate system is in a different node, the `id` field MUST reference the node via its ID.
+**Node/Multiscales > attributes > scene > coordinateTransformations**:
+In the context of node-level transformations between different multiscale collections,
+the following requirements apply:
+- The `input` field MUST reference a coordinate system via the `id` field.
+- The `output` field MUST reference a coordinate system via the `id` field.
+- If the referenced coordinate system is in the same metadata document, the `path` field MAY be omitted or null.
+  If the referenced coordinate system is in a different metadata document, both the `id` and `path` fields MUST be present.
 
 
 #### Scene
