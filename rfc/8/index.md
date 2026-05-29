@@ -712,7 +712,7 @@ If present, the value of the `labels` attribute MUST be an object with the follo
 
 | Field | Type | Required? | Notes |
 | - | - | - | - |
-| `"labelAttributes"` | array of objects | no | Attributes for individual labels. Objects MUST conform to the [`Label Attributes` object](#label-attributes-object) schema.
+| `"labelAttributes"` | array of objects | no | Attributes for individual labels. Each object MUST be a [`Label Attributes` object](#label-attributes-interface).
 | `"source"` | array of strings | no | An array with [`Reference`s](#reference-interface) to the source multiscales. |
 
 Because no fields are required, an empty object MAY be used.
@@ -720,7 +720,7 @@ Because no fields are required, an empty object MAY be used.
 In this proposal, the previous `colors` and `properties` fields are combined into a single `labelAttributes` field.
 The `rgba` field in the `colors` objects has been renamed to `color`.
 
-#### `Label Attributes` object
+#### `Label Attributes` interface
 
 The `labelAttributes` field is an array of objects with the following fields:
 
@@ -784,25 +784,25 @@ A `collection` node representing a plate MUST have a `plate` attribute with the 
 
 | Field | Type | Required? | Notes |
 | - | - | - | - |
-| `"acquisitions"` | array of objects | no | List of acquisitions performed on the plate. Each object MUST conform to the [`Acquisition` object](#acquisition-object) schema. |
-| `"columns"` | array of objects | yes | List of columns in the plate. Each object MUST conform to the [`Column` object](#column-object) schema. |
-| `"rows"` | array of objects | yes | List of rows in the plate. Each object MUST conform to the [`Row` object](#row-object) schema. |
+| `"acquisitions"` | array of objects | no | List of acquisitions performed on the plate. Each object MUST be [`Acquisition` objects](#acquisition-interface). |
+| `"columns"` | array of objects | yes | List of columns in the plate. Each object MUST be [`Column` objects](#column-interface). |
+| `"rows"` | array of objects | yes | List of rows in the plate. Each object MUST be [`Row` objects](#row-interface). |
 
-#### `Acquisition` object
-
-| Field | Type | Required? | Notes |
-| - | - | - | - |
-| `"id"` | string | yes | Value MUST be a string that matches `[a-zA-Z0-9-_.]+`. IDs MUST be unique within the JSON document. |
-| `"name"` | string | no | A human-readable name for the acquisition. |
-
-#### `Column` object
+#### `Acquisition` interface
 
 | Field | Type | Required? | Notes |
 | - | - | - | - |
 | `"id"` | string | yes | Value MUST be a string that matches `[a-zA-Z0-9-_.]+`. IDs MUST be unique within the JSON document. |
 | `"name"` | string | no | A human-readable name for the acquisition. |
 
-#### `Row` object
+#### `Column` interface
+
+| Field | Type | Required? | Notes |
+| - | - | - | - |
+| `"id"` | string | yes | Value MUST be a string that matches `[a-zA-Z0-9-_.]+`. IDs MUST be unique within the JSON document. |
+| `"name"` | string | no | A human-readable name for the acquisition. |
+
+#### `Row` interface
 
 | Field | Type | Required? | Notes |
 | - | - | - | - |
@@ -1131,7 +1131,7 @@ In a change from the previous specification, coordinate systems are referenced u
 }
 ```
 
-#### `Coordinate System` object
+#### `Coordinate System` interface
 
 The `Coordinate System` objects have the following fields:
 
@@ -1142,15 +1142,15 @@ The `Coordinate System` objects have the following fields:
 | `"axes"` | array of strings | yes | Value MUST be an array of axes, as defined in RFC-5. |
 
 
-#### `Coordinate Transformation` object
+#### `Coordinate Transformation` interface
 
 The `Coordinate Transformation` objects have the following fields:
 
 | Field | Type | Required? | Notes |
 | - | - | - | - |
 | `"type"` | string | yes | Value MUST be a valid coordinate transform type, as defined in RFC-5. |
-| `"input"` | object | yes | Value MUST be a [`Reference`](#reference-interface) to the input [`Coordinate System`](#coordinate-system-object). |
-| `"output"` | object | yes | Value MUST be a [`Reference`](#reference-interface) to the output [`Coordinate System`](#coordinate-system-object). |
+| `"input"` | object | yes | Value MUST be a [`Reference`](#reference-interface) to the input [`Coordinate System`](#coordinate-system-interface). |
+| `"output"` | object | yes | Value MUST be a [`Reference`](#reference-interface) to the output [`Coordinate System`](#coordinate-system-interface). |
 
 Additional fields MAY be added as required by the transform type.
 
@@ -1182,8 +1182,8 @@ The `scene` attribute MUST be an object with the following fields:
 
 | Field | Type | Required? | Notes |
 | - | - | - | - |
-| `"coordinateSystems"` | array | no | Values MUST be valid instances of [`Coordinate System`](#coordinate-system-object) objects. |
-| `"coordinateTransformations"` | array | yes | Values MUST be valid instances of [`Coordinate transformation`](#coordinate-transformation-object) objects |
+| `"coordinateSystems"` | array | no | Values MUST be valid instances of [`Coordinate System`](#coordinate-system-interface) objects. |
+| `"coordinateTransformations"` | array | yes | Values MUST be valid instances of [`Coordinate transformation`](#coordinate-transformation-interface) objects |
 
 A `scene` metadata object can be defined in the `attributes` of a collection to enrich the collection with spatial information of the nodes within the collection.
 The `scene` field allows to clearly distinguish between the spatial information pertaining to an individual multiscale image (which is stored in the `attributes` of the multiscale)
@@ -1404,7 +1404,7 @@ Internal references (e.g., for `input`, `output`, `source`) would use proper JSO
 The core problem with JSON-LD for this RFC is that it is based on IRIs, which makes path-based references difficult.
 Standard JSON-LD linking does not support relative paths (e.g., `./image.zarr`) or file system paths.
 It also does not support the typed path mechanism—distinguishing between `zarr` and `json` path types—that is a central part of this RFC.
-This would force a hybrid approach where the `Path` object uses JSON-LD syntax (`@type`) but does not conform to JSON-LD semantics.
+This would force a hybrid approach where the `Path` interface uses JSON-LD syntax (`@type`) but does not conform to JSON-LD semantics.
 
 Such a hybrid approach introduces its own complexity.
 Users familiar with JSON-LD would expect standard linking to work, but our custom `Path` mechanism is not standard JSON-LD.
