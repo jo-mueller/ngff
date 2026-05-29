@@ -231,7 +231,7 @@ Future RFCs might add more Node types, including custom Node types.
 A `Node` object may be used as the root object of the `ome` key, in which case a `version` field, as defined in previous spec versions, is also required.
 Non-root `Node` objects SHOULD NOT have a `version` field and MUST NOT have a different `version` value than the root `Node`.
 
-#### `Collection` Node
+#### `Collection` node
 
 A `Collection` node groups together one or more `Node`s.
 Collections MAY be nested.
@@ -247,7 +247,7 @@ Collections MAY be nested.
 
 Either `"nodes"` or `"path"` MUST be present, but not both.
 
-#### `Multiscale` Node
+#### `Multiscale` node
 
 A `Multiscale` node represents an OME-Zarr multiscale image.
 This new interface replaces the multiscale metadata defined in the previous versions of the OME-Zarr specification.
@@ -263,7 +263,7 @@ This new interface replaces the multiscale metadata defined in the previous vers
 
 Either `"nodes"` or `"path"` MUST be present, but not both.
 
-#### `Singlescale` Node
+#### `Singlescale` node
 
 A `Singlescale` node represents one resolution level of an OME-Zarr multiscale image.
 This new interface replaces the dataset metadata defined in the previous versions of the OME-Zarr specification.
@@ -284,7 +284,7 @@ This new interface replaces the dataset metadata defined in the previous version
 - The `input` field of these transformations references the `id` of the  `Singlescale` node itself.
 - The `output` field references the `id` of a coordinate system defined under `coordinateSystems` in a `Multiscale` node.
 
-#### `Path` Interface
+#### `Path` interface
 
 This new interface replaces the paths defined in the previous versions of the OME-Zarr specification.
 
@@ -327,12 +327,11 @@ Future RFCs may propose additional path types, such as S3 URLs or chained paths 
 See the [Security](#security) section for guidance on access restrictions.
 
 
-#### References
+#### `Reference` interface
 
 Referenced objects MUST have an `id` field.
 
-A reference may be a plain string containing the `id` value of the target object within the same JSON document.
-For more complex references, the reference can be an object with the following fields:
+A reference MUST be an object with the following fields:
 
 | Field | Type | Required? | Notes |
 | - | - | - | - |
@@ -713,15 +712,15 @@ If present, the value of the `labels` attribute MUST be an object with the follo
 
 | Field | Type | Required? | Notes |
 | - | - | - | - |
-| `"labelAttributes"` | array of objects | no | Attributes for individual labels. |
-| `"source"` | array of strings | no | An array with references to the source multiscales. |
+| `"labelAttributes"` | array of objects | no | Attributes for individual labels. Objects MUST conform to the [`Label Attributes` object](#label-attributes-object) schema.
+| `"source"` | array of strings | no | An array with [`Reference`s](#reference-interface) to the source multiscales. |
 
 Because no fields are required, an empty object MAY be used.
 
 In this proposal, the previous `colors` and `properties` fields are combined into a single `labelAttributes` field.
 The `rgba` field in the `colors` objects has been renamed to `color`.
 
-#### Label attributes
+#### `Label Attributes` object
 
 The `labelAttributes` field is an array of objects with the following fields:
 
@@ -732,7 +731,7 @@ The `labelAttributes` field is an array of objects with the following fields:
 
 If present, the `color` field MUST have an array with four integers between 0 and 255, inclusive. These integers represent the uint8 values of red, green, blue and alpha.
 
-Additional keys MAY be added, [following the key naming rules](#extensibility).
+Additional keys MAY be added, [following the attribute key naming rules](#extensibility).
 
 The previous `label-value` key is now renamed to `labelValue` for consistency.
 
@@ -757,7 +756,7 @@ The previous `label-value` key is now renamed to `labelValue` for consistency.
             "nodes": [ ... ],
             "attributes": {
                 "labels": {
-                    "source": [ "raw" ],
+                    "source": [ {"id": "raw"} ],
                     "labelAttributes": [{
                         "labelValue": 1,
                         "color": [ 255, 0, 0, 255 ]
@@ -777,37 +776,51 @@ The previous `label-value` key is now renamed to `labelValue` for consistency.
 High-content screening data is typically organized as a grid of wells on a plate, where each well contains one or more multiscale images from one or more acquisition rounds.
 This section introduces additional metadata for organizing wells on a plate.
 
-This proposal changes the HCS references from numeric IDs and names to string-based ID references, consistent with the [References mechanism](#references) defined above.
+This proposal changes the HCS references from numeric IDs and names to string-based ID references, consistent with the [References mechanism](#reference-interface) defined above.
 
-#### `plate` attribute
+#### `Plate` attribute
 
 A `collection` node representing a plate MUST have a `plate` attribute with the following fields:
 
 | Field | Type | Required? | Notes |
 | - | - | - | - |
-| `"acquisitions"` | array of objects | no | List of acquisitions performed on the plate. Each object MUST conform to the [`acquisition` object](#acquisition-object) schema. |
-| `"columns"` | array of objects | yes | List of columns in the plate. Each object MUST have an `"id"` string field and MAY have a `"name"` string field. |
-| `"rows"` | array of objects | yes | List of rows in the plate. Each object MUST have an `"id"` string field and MAY have a `"name"` string field. |
+| `"acquisitions"` | array of objects | no | List of acquisitions performed on the plate. Each object MUST conform to the [`Acquisition` object](#acquisition-object) schema. |
+| `"columns"` | array of objects | yes | List of columns in the plate. Each object MUST conform to the [`Column` object](#column-object) schema. |
+| `"rows"` | array of objects | yes | List of rows in the plate. Each object MUST conform to the [`Row` object](#row-object) schema. |
 
-#### `acquisition` object
+#### `Acquisition` object
 
 | Field | Type | Required? | Notes |
 | - | - | - | - |
-| `"id"` | string | yes | Value MUST be a string that matches `[a-zA-Z0-9-_.]+`. IDs MUST be unique within the `acquisitions` array. |
+| `"id"` | string | yes | Value MUST be a string that matches `[a-zA-Z0-9-_.]+`. IDs MUST be unique within the JSON document. |
 | `"name"` | string | no | A human-readable name for the acquisition. |
 
-#### `well` attribute
+#### `Column` object
+
+| Field | Type | Required? | Notes |
+| - | - | - | - |
+| `"id"` | string | yes | Value MUST be a string that matches `[a-zA-Z0-9-_.]+`. IDs MUST be unique within the JSON document. |
+| `"name"` | string | no | A human-readable name for the acquisition. |
+
+#### `Row` object
+
+| Field | Type | Required? | Notes |
+| - | - | - | - |
+| `"id"` | string | yes | Value MUST be a string that matches `[a-zA-Z0-9-_.]+`. IDs MUST be unique within the JSON document. |
+| `"name"` | string | no | A human-readable name for the acquisition. |
+
+#### `Well` attribute
 
 A `collection` node representing a well MUST have a `well` attribute with the following fields:
 
 | Field | Type | Required? | Notes |
 | - | - | - | - |
-| `"column"` | string | yes | Value MUST be the `id` of one of the columns listed in the `plate` attribute on the enclosing plate-level collection. |
-| `"row"` | string | yes | Value MUST be the `id` of one of the rows listed in the `plate` attribute on the enclosing plate-level collection. |
+| `"column"` | string | yes | Value MUST be a [`Reference`](#reference-interface) to one of the columns listed in the `plate` attribute on the enclosing plate-level collection. |
+| `"row"` | string | yes | Value MUST be a [`Reference`](#reference-interface) to one of the rows listed in the `plate` attribute on the enclosing plate-level collection. |
 
-#### `acquisition` attribute
+#### `Acquisition` attribute
 
-The `acquisition` attribute is a string whose value MUST match the `id` of one of the acquisitions listed in the `plate` attribute.
+The `acquisition` attribute MUST be a [`Reference`](#reference-interface) to one of the acquisitions.
 It MAY be set on individual `multiscale` nodes within a well or on a `collection` sub-node grouping all images from a single acquisition.
 
 We suggest two possible layouts for HCS data, which are not mutually exclusive and can be used in combination: a "wide" layout where all images are direct children of the well collection and a "tall" layout where images are grouped in sub-collections by acquisition. 
@@ -816,7 +829,7 @@ We suggest two possible layouts for HCS data, which are not mutually exclusive a
 
 In this layout, all multiscale nodes are direct children of the well collection.
 Each node carries an `acquisition` attribute.
-Derived images such as label maps are siblings of their source image and can still be linked via the `source` reference in their `labels` attribute, (or similarly via third-party attributes such as `ngio:source`). This layout is more compact but can become cluttered when there are multiple acquisitions and derived nodes.
+Derived images such as label maps are siblings of their source image and can still be linked via the `source` reference in their `labels` attribute. This layout is more compact but can become cluttered when there are multiple acquisitions and derived nodes.
 
 ```jsonc
 {
@@ -852,8 +865,8 @@ Derived images such as label maps are siblings of their source image and can sti
                 "name": "well A01",
                 "attributes": {
                     "well": {
-                        "column": "1",
-                        "row": "A"
+                        "column": {"id": "1"},
+                        "row": {"id": "A"}
                     }
                 },
                 "nodes": [
@@ -866,7 +879,7 @@ Derived images such as label maps are siblings of their source image and can sti
                             "path": "./A/01/001.img"
                         },
                         "attributes": {
-                            "acquisition": "acq_0"
+                            "acquisition": {"id": "acq_0"}
                         }
                     },
                     {
@@ -877,8 +890,8 @@ Derived images such as label maps are siblings of their source image and can sti
                             "path": "./A/01/001_ill_corrected.img"
                         },
                         "attributes": {
-                            "acquisition": "acq_0",
-                            "ngio:source": ["A01_0"]
+                            "acquisition": {"id": "acq_0"},
+                            "source": [{"id": "A01_0"}]
                         }
                     },
                     {
@@ -889,9 +902,9 @@ Derived images such as label maps are siblings of their source image and can sti
                             "path": "./A/01/001_nuclei.img"
                         },
                         "attributes": {
-                            "acquisition": "acq_0",
+                            "acquisition": {"id": "acq_0"},
                             "labels": {
-                                "source": ["A01_0"]
+                              "source": [{"id": "A01_0"}]
                             }
                         }
                     }
@@ -946,8 +959,8 @@ This serves as an example that wells can consist of collections, not just multis
                 "name": "well A01",
                 "attributes": {
                     "well": {
-                        "column": "1",
-                        "row": "A"
+                        "column": {"id": "1"},
+                        "row": {"id": "A"}
                     }
                 },
                 "nodes": [
@@ -955,7 +968,7 @@ This serves as an example that wells can consist of collections, not just multis
                         "type": "collection",
                         "name": "A01_acq0",
                         "attributes": {
-                            "acquisition": "acq_0"
+                            "acquisition": {"id": "acq_0"}
                         },
                         "nodes": [
                             {
@@ -986,7 +999,7 @@ This serves as an example that wells can consist of collections, not just multis
                         "type": "collection",
                         "name": "A01_acq1",
                         "attributes": {
-                            "acquisition": "acq_1"
+                            "acquisition": {"id": "acq_1"}
                         },
                         "nodes": [
                             {
@@ -1007,7 +1020,7 @@ This serves as an example that wells can consist of collections, not just multis
                                 },
                                 "attributes": {
                                     "labels": {
-                                        "source": ["A01_1"]
+                                        "source": [{"id": "A01_1"}]
                                     }
                                 }
                             }
@@ -1022,7 +1035,7 @@ This serves as an example that wells can consist of collections, not just multis
 
 While inlined plate collections are shown above for simplicity, an on-disk plate collection could still refer to separate on-disk collections within each well that carry a `well` attribute.
 
-### bioformats2raw.layout metadata
+### `bioformats2raw.layout` metadata
 
 The `bioformats2raw.layout` metadata is replaced by this proposal.
 A series of images can now be represented as a collection of multiscale images.
@@ -1042,22 +1055,21 @@ Coordinate systems and transformations can be stored in two distinct locations:
     {
       "type": "translation",
       "translation": [0, 0, 100],
-      "input": {"name": "physical", "path": "./image_1"}, // references collection node ID
-      "output": {"name": "world"} // references coordinate system ID
+      "input": {"id": "physical", "path": "./image_1"}, // references collection node ID
+      "output": {"id": "world"} // references coordinate system ID
     }
   ]
 }
 ```
 
-In a change from the previous specification,
-coordinate systems are referenced using the [Reference mechanism](#references), i.e. via IDs, and not via names.
+In a change from the previous specification, coordinate systems are referenced using the [Reference mechanism](#reference-interface), i.e. via IDs, and not via names.
 
 ```jsonc
 {
   "ome": {
     "version": "0.x",
     "type": "collection",
-    "name": "tiles",
+    "name": "Tiles",
     "id": "tiles",
     "attributes": {
       "scene": {
@@ -1077,7 +1089,7 @@ coordinate systems are referenced using the [Reference mechanism](#references), 
                 "path": "./tile_0.zarr"
               },
               "id": "physical"
-              },  // references coordinate system "physical" defined in tile_0
+            },  // references coordinate system "physical" defined in tile_0
             "output": {"id": "world"}  // references coordinate system "world" defined in same node
           },
           {
@@ -1089,7 +1101,7 @@ coordinate systems are referenced using the [Reference mechanism](#references), 
                 "path": "./tile_1.zarr"
               },
               "id": "physical"
-              },  // references coordinate system "physical" defined in tile_1
+            },  // references coordinate system "physical" defined in tile_1
             "output": {"id": "world"}  // references coordinate system "world" defined in same node
           }
         ]
@@ -1099,7 +1111,7 @@ coordinate systems are referenced using the [Reference mechanism](#references), 
       {
         "type": "multiscale",
         "id": "tile_0",
-        "name": "tile_0",
+        "name": "Tile 0",
         "path": {
           "type": "zarr",
           "path": "./tile_0.zarr"
@@ -1108,7 +1120,7 @@ coordinate systems are referenced using the [Reference mechanism](#references), 
       {
         "type": "multiscale",
         "id": "tile_1",
-        "name": "tile_1",
+        "name": "Tile 1",
         "path": {
           "type": "zarr",
           "path": "./tile_1.zarr"
@@ -1119,9 +1131,9 @@ coordinate systems are referenced using the [Reference mechanism](#references), 
 }
 ```
 
-#### Coordinate systems
+#### `Coordinate System` object
 
-The `coordinateSystems` attribute is an array of objects with the following fields:
+The `Coordinate System` objects have the following fields:
 
 | Field | Type | Required? | Notes |
 | - | - | - | - |
@@ -1130,24 +1142,17 @@ The `coordinateSystems` attribute is an array of objects with the following fiel
 | `"axes"` | array of strings | yes | Value MUST be an array of axes, as defined in RFC-5. |
 
 
-#### Coordinate transformations
+#### `Coordinate Transformation` object
 
-The `coordinateTransformations` field is an array of objects with the following fields:
+The `Coordinate Transformation` objects have the following fields:
 
 | Field | Type | Required? | Notes |
 | - | - | - | - |
 | `"type"` | string | yes | Value MUST be a valid coordinate transform type, as defined in RFC-5. |
-| `"input"` | object | yes | Value MUST be a [`Reference`](#references) to the input `Coordinate System`. |
-| `"output"` | object | yes | Value MUST be a [`Reference`](#references) to the output `Coordinate System`. |
+| `"input"` | object | yes | Value MUST be a [`Reference`](#reference-interface) to the input [`Coordinate System`](#coordinate-system-object). |
+| `"output"` | object | yes | Value MUST be a [`Reference`](#reference-interface) to the output [`Coordinate System`](#coordinate-system-object). |
 
 Additional fields MAY be added as required by the transform type.
-
-The `input` and `output` fields contain the following fields:
-
-| Field | Type | Required? | Notes |
-| - | - | - | - |
-| `"id"` | string | yes | Value MUST be a string that matches `[a-zA-Z0-9-_.]+`, which corresponds to a coordinate system node ID. IDs MUST be unique within the JSON document. |
-| `"path"` | object | no | Value MUST be a `Path` object. Required when referencing a coordinate system at a different path. |
 
 Depending on the context, different fields are required:
 
@@ -1171,16 +1176,16 @@ the following requirements apply:
   If the referenced coordinate system is in a different metadata document, both the `id` and `path` fields MUST be present.
 
 
-#### Scene
+#### `Scene` attribute
 
-The `scene` metadata is an objects with the following fields:
+The `scene` attribute MUST be an object with the following fields:
 
 | Field | Type | Required? | Notes |
 | - | - | - | - |
-| `"coordinateSystems"` | array | no | Values MUST be valid instances of [coordinate systems](#coordinate-systems) |
-| `"coordinateTransformations"` | array | yes | Values MUST be valid instances of [coordinate transformations](#coordinate-transformations) |
+| `"coordinateSystems"` | array | no | Values MUST be valid instances of [`Coordinate System`](#coordinate-system-object) objects. |
+| `"coordinateTransformations"` | array | yes | Values MUST be valid instances of [`Coordinate transformation`](#coordinate-transformation-object) objects |
 
-A `scene` metadata block can be defined in the `attributes` of a collection to enrich the collection with spatial information of the nodes within the collection.
+A `scene` metadata object can be defined in the `attributes` of a collection to enrich the collection with spatial information of the nodes within the collection.
 The `scene` field allows to clearly distinguish between the spatial information pertaining to an individual multiscale image (which is stored in the `attributes` of the multiscale)
 and the spatial information pertaining to the collection of images (which is stored in the `attributes` of the collection).
 
