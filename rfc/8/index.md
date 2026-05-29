@@ -481,7 +481,7 @@ The multiscale group contains the following metadata:
           "coordinateSystems": [
             {
               "id": "physical",
-              "name": "the_physical_coordinate_system",
+              "name": "The physical coordinate system",
               "axes": [...]
             }
           ]
@@ -1125,8 +1125,8 @@ The `coordinateSystems` attribute is an array of objects with the following fiel
 
 | Field | Type | Required? | Notes |
 | - | - | - | - |
-| `"id"` | string | yes | Value MUST be a string that matches `[a-zA-Z0-9-_.]+`.Id to use when referencing the coordinate system from a transformation. |
-| `"name"` | string | no | Value MUST be a string that matches `[a-zA-Z0-9-_.]+`. More descriptive name for the coordinate system, if needed. |
+| `"id"` | string | yes | Value MUST be a string that matches `[a-zA-Z0-9-_.]+`. ID to use when referencing the coordinate system from a transformation. IDs MUST be unique within the JSON document. |
+| `"name"` | string | no | More descriptive name for the coordinate system, if needed. |
 | `"axes"` | array of strings | yes | Value MUST be an array of axes, as defined in RFC-5. |
 
 
@@ -1137,8 +1137,8 @@ The `coordinateTransformations` field is an array of objects with the following 
 | Field | Type | Required? | Notes |
 | - | - | - | - |
 | `"type"` | string | yes | Value MUST be a valid coordinate transform type, as defined in RFC-5. |
-| `"input"` | object | yes | Value MUST be a [reference](#references) to the input coordinate system. |
-| `"output"` | object | yes | Value MUST be a [reference](#references) to the output coordinate system. |
+| `"input"` | object | yes | Value MUST be a [`Reference`](#references) to the input `Coordinate System`. |
+| `"output"` | object | yes | Value MUST be a [`Reference`](#references) to the output `Coordinate System`. |
 
 Additional fields MAY be added as required by the transform type.
 
@@ -1146,7 +1146,7 @@ The `input` and `output` fields contain the following fields:
 
 | Field | Type | Required? | Notes |
 | - | - | - | - |
-| `"id"` | string | yes | Value MUST be a string that matches `[a-zA-Z0-9-_.]+`, which corresponds to a coordinate system node id. |
+| `"id"` | string | yes | Value MUST be a string that matches `[a-zA-Z0-9-_.]+`, which corresponds to a coordinate system node ID. IDs MUST be unique within the JSON document. |
 | `"path"` | object | no | Value MUST be a `Path` object. Required when referencing a coordinate system at a different path. |
 
 Depending on the context, different fields are required:
