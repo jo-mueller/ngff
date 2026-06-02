@@ -194,6 +194,23 @@ For example, [this table](https://docs.google.com/spreadsheets/d/1t5xB0p0zd2-a6y
 
 ## Proposal
 
+### tl;dr
+
+* Node interface: a consistent JSON structure for several different types of OME-Zarr metadata object, where fields specific to the node type are inside an attributes field, and the root only stores information used for identifying and referencing the object.
+* Collections: arbitrary collections of nodes which can be specialised for different use cases.
+* Reworking existing structures to a Node/Collection-based framework:
+
+  * Single-scale image arrays
+  * Multiscale image groups, bioformats2raw.layout
+  * Label maps
+  * HCS layout
+
+* Reference interface: a consistent system for referring to local and remote OME-Zarr metadata objects
+* Extension system: namespacing within Nodes' types and fields within their attributes to allow extension of the OME-Zarr by specific vendors or for specific use cases
+* Integration of coordinate transformations (RFC-5) metadata
+
+### Intro
+
 This proposal adds collections to the OME-Zarr specification.
 "Collections" are groupings of "nodes".
 Nodes represent OME-Zarr images (multiscales, singlescales) or collections, either inline or via a path reference.
