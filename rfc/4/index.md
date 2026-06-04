@@ -188,6 +188,8 @@ For images of biped or quadruped subjects, anatomical `orientation` SHOULD be ex
 
 If no orientation is specified, there is no implicit default value. Applications MAY assume a default orientation but SHOULD warn users that orientation metadata is expected but missing.
 
+An axis with no `orientation` field and an axis whose `orientation` is `null` are equivalent: in both cases the orientation of that axis is undefined. Consistent with the OME-Zarr convention that only fields which are present carry meaning, there is no semantic difference between an absent `orientation` and an explicit `null`, and neither implies a default value. Writers SHOULD omit the field rather than serialize `"orientation": null`.
+
 ## Coding Scheme
 
 We define the [LinkML encoding scheme](./orientation.yml) to enumerate the possible values
@@ -559,3 +561,4 @@ End-user applications SHOULD display the encoded information with, for example, 
 | 2025-07-23 | Use a Pydantic Literal for anatomical type | [https://github.com/ome/ngff/pull/330](https://github.com/ome/ngff/pull/330) |
 | 2026-01-20 | Clarify coordinate direction convention | [https://github.com/ome/ngff/pull/428](https://github.com/ome/ngff/pull/428) |
 | 2026-06-03 | Clarify subject-local vs. patient-global orientation and expand the controlled vocabulary with layered- and polarized-tissue terms (superficial/deep, apical/basal, apex/base), per [review 3](./reviews/3/index). | [https://github.com/ome/ngff/pull/435](https://github.com/ome/ngff/pull/435) |
+| 2026-06-04 | Clarify that an absent `orientation` and an explicit `null` `orientation` are equivalent and leave the orientation undefined. | [https://github.com/fideus-labs/ngff-zarr/pull/523](https://github.com/fideus-labs/ngff-zarr/pull/523) |
