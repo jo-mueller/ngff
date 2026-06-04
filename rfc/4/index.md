@@ -89,6 +89,14 @@ This metadata MUST only be used in cases where there is a single subject in the 
 
 The `orientation` field is structured as an object and MUST have a `type` field that specifies the orientation domain (e.g., "anatomical") and MUST have a `value` field that specifies the specific orientation within that domain. Valid `type` strings are defined in this document -- currently only `"anatomical"`.
 
+### Subject-Local vs. Patient-Global Orientation
+
+The "subject" referenced above need not be a whole organism. It MAY be a local anatomical structure, such as a tissue biopsy, histology slide, or dissected organ. The `orientation` field describes the orientation of whatever structure is present in the acquired image or extracted region-of-interest, at whatever spatial scale.
+
+This distinction matters for fields such as spatial transcriptomics and histopathology, where the sample is frequently a tissue specimen whose position and orientation relative to the whole donor (its "patient-global" orientation) is unknown, but whose internal ("subject-local") orientation is well defined. For example, the depth axis of a skin biopsy is `superficial-to-deep` regardless of where on the body the biopsy was taken or how the specimen happened to be placed on the slide. In these cases the requirement that the subject be "roughly aligned to the imaging axes" applies to the local tissue structure rather than to a whole-organism coordinate frame.
+
+Supporting subject-local orientation makes this metadata applicable to the tissue-profiling community without requiring registration of the specimen to a whole-organism or atlas coordinate system. When such a registration is available, it can be expressed with RFC-5 coordinate transformations relating the subject-local axes to a patient-global or atlas coordinate system (see the *Interaction with RFC-5* section below).
+
 ### Coordinate Direction Convention
 
 The directional orientation values (e.g., "anterior-to-posterior", "left-to-right") specify the direction from lowest to highest coordinates along the axis. For example, an axis with `"orientation": {"type": "anatomical", "value": "anterior-to-posterior"}` indicates that:
@@ -135,7 +143,6 @@ This RFC focuses on anatomical orientation as the primary use case, but the stru
 - engineering/microfluidics: upstream/downstream (flow direction)
 - geographical: north/south, east/west
 - oceanographic: increasing-depth
-- histological: basal/apical
 
 For anatomical orientation, the controlled vocabulary for the `orientation` field's `value` will include:
 
@@ -162,6 +169,14 @@ For anatomical orientation, the controlled vocabulary for the `orientation` fiel
 - `caudal-to-cranial` (tail-to-head)
 - `dorsal-to-ventral` (back/top-to-belly/bottom)
 - `ventral-to-dorsal` (belly/bottom-to-back/top)
+
+**For layered and polarized tissues (subject-local):**
+- `superficial-to-deep` (outer surface to inner depth, e.g. skin, gut, cortex)
+- `deep-to-superficial` (inner depth to outer surface)
+- `apical-to-basal` (apical to basal surface, e.g. epithelial layers, polarized cells)
+- `basal-to-apical` (basal to apical surface)
+- `apex-to-base` (tip to broad base, e.g. heart, lungs)
+- `base-to-apex` (broad base to tip)
 
 Note: In bipeds, the terms rostral/caudal and dorsal/ventral are ambiguous because their orientation depends on the anatomical structure. For example, these directions are orthogonal when describing the human brain versus the spinal cord. Therefore, the unambiguous terms anterior/posterior and inferior/superior (sometimes referred to as head/foot) are generally preferred for bipeds.
 
@@ -204,6 +219,12 @@ Anatomical orientation refers to the specific arrangement and directional alignm
 | caudal-to-cranial | Describes the directional orientation from the tail (caudal) to the head (cranial) end of an anatomical structure or body. |  |  |
 | proximal-to-distal | Describes the directional orientation from the center of the body to the periphery of an anatomical structure or limb. |  |  |
 | distal-to-proximal | Describes the directional orientation from the periphery of an anatomical structure or limb to the center of the body. |  |  |
+| superficial-to-deep | Describes the directional orientation from the outer surface (superficial) to the inner depth (deep) of a layered tissue such as skin, gut, or cortex. |  |  |
+| deep-to-superficial | Describes the directional orientation from the inner depth (deep) to the outer surface (superficial) of a layered tissue such as skin, gut, or cortex. |  |  |
+| apical-to-basal | Describes the directional orientation from the apical surface (apical) to the basal surface (basal) of an epithelial layer or polarized cell structure. |  |  |
+| basal-to-apical | Describes the directional orientation from the basal surface (basal) to the apical surface (apical) of an epithelial layer or polarized cell structure. |  |  |
+| apex-to-base | Describes the directional orientation from the tip (apex) to the broad base (base) of an organ such as the heart or lung. |  |  |
+| base-to-apex | Describes the directional orientation from the broad base (base) to the tip (apex) of an organ such as the heart or lung. |  |  |
 
 ## Requirements
 
@@ -291,7 +312,13 @@ In JSON-Schema:
                         "cranial-to-caudal",
                         "caudal-to-cranial",
                         "proximal-to-distal",
-                        "distal-to-proximal"
+                        "distal-to-proximal",
+                        "superficial-to-deep",
+                        "deep-to-superficial",
+                        "apical-to-basal",
+                        "basal-to-apical",
+                        "apex-to-base",
+                        "base-to-apex"
                     ]
                 }
             },
@@ -355,6 +382,18 @@ class AnatomicalOrientationValue(str, Enum):
     proximal_to_distal = "proximal-to-distal"
     # Describes the directional orientation from the periphery of an anatomical structure or limb to the center of the body.
     distal_to_proximal = "distal-to-proximal"
+    # Describes the directional orientation from the outer surface (superficial) to the inner depth (deep) of a layered tissue such as skin, gut, or cortex.
+    superficial_to_deep = "superficial-to-deep"
+    # Describes the directional orientation from the inner depth (deep) to the outer surface (superficial) of a layered tissue such as skin, gut, or cortex.
+    deep_to_superficial = "deep-to-superficial"
+    # Describes the directional orientation from the apical surface (apical) to the basal surface (basal) of an epithelial layer or polarized cell structure.
+    apical_to_basal = "apical-to-basal"
+    # Describes the directional orientation from the basal surface (basal) to the apical surface (apical) of an epithelial layer or polarized cell structure.
+    basal_to_apical = "basal-to-apical"
+    # Describes the directional orientation from the tip (apex) to the broad base (base) of an organ such as the heart or lung.
+    apex_to_base = "apex-to-base"
+    # Describes the directional orientation from the broad base (base) to the tip (apex) of an organ such as the heart or lung.
+    base_to_apex = "base-to-apex"
 
 class Orientation(BaseModel):
     """
@@ -421,6 +460,18 @@ enum AnatomicalOrientationValue {
     proximal_to_distal = "proximal-to-distal",
     /** Describes the directional orientation from the periphery of an anatomical structure or limb to the center of the body. */
     distal_to_proximal = "distal-to-proximal",
+    /** Describes the directional orientation from the outer surface (superficial) to the inner depth (deep) of a layered tissue such as skin, gut, or cortex. */
+    superficial_to_deep = "superficial-to-deep",
+    /** Describes the directional orientation from the inner depth (deep) to the outer surface (superficial) of a layered tissue such as skin, gut, or cortex. */
+    deep_to_superficial = "deep-to-superficial",
+    /** Describes the directional orientation from the apical surface (apical) to the basal surface (basal) of an epithelial layer or polarized cell structure. */
+    apical_to_basal = "apical-to-basal",
+    /** Describes the directional orientation from the basal surface (basal) to the apical surface (apical) of an epithelial layer or polarized cell structure. */
+    basal_to_apical = "basal-to-apical",
+    /** Describes the directional orientation from the tip (apex) to the broad base (base) of an organ such as the heart or lung. */
+    apex_to_base = "apex-to-base",
+    /** Describes the directional orientation from the broad base (base) to the tip (apex) of an organ such as the heart or lung. */
+    base_to_apex = "base-to-apex",
 }
 ```
 
@@ -507,3 +558,4 @@ End-user applications SHOULD display the encoded information with, for example, 
 | 2025-07-23 | Clarify that the type fields are MUST's and the only currently defined value is "anatomical". | [https://github.com/ome/ngff/pull/329](https://github.com/ome/ngff/pull/329) |
 | 2025-07-23 | Use a Pydantic Literal for anatomical type | [https://github.com/ome/ngff/pull/330](https://github.com/ome/ngff/pull/330) |
 | 2026-01-20 | Clarify coordinate direction convention | [https://github.com/ome/ngff/pull/428](https://github.com/ome/ngff/pull/428) |
+| 2026-06-03 | Clarify subject-local vs. patient-global orientation and expand the controlled vocabulary with layered- and polarized-tissue terms (superficial/deep, apical/basal, apex/base), per [review 3](./reviews/3/index). | [https://github.com/ome/ngff/pull/435](https://github.com/ome/ngff/pull/435) |
