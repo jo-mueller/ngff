@@ -24,7 +24,7 @@ NGFF is a collective and community-driven effort, and we welcome contributions f
 Acknowledgement of contributions is important to us,
 and we provide ways to to credit contributors for their work in different places of the NGFF ecosystem.
 
-For auhorship of the specification itself,
+For authorship of the specification itself,
 a list of authors is maintained in the `authors.yml` file in the [ngff-spec](https://github.com/ome/ngff-spec) repository.
 The list of authors in this file is organized in two tiers:
 - First category: Those who have contributed to the development of the spec through the RFC process
@@ -38,7 +38,7 @@ To ensure the visibility of all contributions to the broader ecosystem that are 
 a list of contributors is maintained in the [ome-zarr-acknowledgements](https://github.com/german-BioImaging/ome-zarr-acknowledgments/) repository,
 which is displayed [here](community:contributors).
 Any contribution to the NGFF ecosystem can be acknowledged in this repository, including but not limited to
-- contribution to spec development
+- Contribution to spec development
 - Maintenance of software implementations of ome-zarr
 - Development of tools and utilities for working with ome-zarr
 - Development of documentation and educational materials for ome-zarr
