@@ -89,7 +89,7 @@ This metadata MUST only be used in cases where there is a single subject in the 
 
 The `orientation` field is structured as an object and MUST have a `type` field that specifies the orientation domain (e.g., "anatomical") and MUST have a `value` field that specifies the specific orientation within that domain. Valid `type` strings are defined in this document -- currently only `"anatomical"`.
 
-### Subject-Local vs. Patient-Global Orientation
+### Subject-Local vs. Subject-Global Orientation
 
 The "subject" referenced above need not be a whole organism. It MAY be a local anatomical structure, such as a tissue biopsy, histology slide, or dissected organ. The `orientation` field describes the orientation of whatever structure is present in the acquired image or extracted region-of-interest, at whatever spatial scale.
 
