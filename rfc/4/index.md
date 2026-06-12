@@ -97,6 +97,8 @@ This distinction matters for fields such as spatial transcriptomics and histopat
 
 Supporting subject-local orientation makes this metadata applicable to the tissue-profiling community without requiring registration of the specimen to a whole-organism or atlas coordinate system. When such a registration is available, it can be expressed with RFC-5 coordinate transformations relating the subject-local axes to a patient-global or atlas coordinate system (see the *Interaction with RFC-5* section below).
 
+A single subject may carry more than one meaningful orientation. For example, a biopsy taken from a whole-body cleared specimen has both a local tissue orientation and a secondary orientation within the donor's whole body. The `orientation` field defined here describes a single, *primary* orientation of the structure in the image. Additional (secondary) orientations are not supported at this time. If a generic vector data structure is added to the OME-Zarr standard in the future, these orientation annotations could be applied to such vectors, allowing multiple orientations to be expressed where anatomical orientation only makes sense locally (for example, an image containing multiple organs or multiple organisms).
+
 ### Coordinate Direction Convention
 
 The directional orientation values (e.g., "anterior-to-posterior", "left-to-right") specify the direction from lowest to highest coordinates along the axis. For example, an axis with `"orientation": {"type": "anatomical", "value": "anterior-to-posterior"}` indicates that:
@@ -482,6 +484,7 @@ enum AnatomicalOrientationValue {
 - **Costs:** This will add another field to the axes metadata. While some implementers do not deal with anatomical orientation, this field is optional.
 - **Risks:** Incorrect implementation or interpretation of the new field could lead to data misalignment.
 - **Alternatives:** Continue using existing methods with assumed or undefined orientations, which is error-prone.
+- **Primary vs. secondary orientation:** Modeling a subject as carrying both a primary (subject-local) and a secondary (e.g. patient-global) orientation simultaneously was considered. A single subject can have more than one meaningful orientation — for example, a biopsy taken from a whole-body cleared specimen has a local tissue orientation as well as a secondary orientation within the donor's whole body. Supporting multiple orientations per axis was judged to be overkill for the current emerging use cases, so the `orientation` field describes only a single, primary orientation and additional orientations are not supported at this time. If a generic vector data structure is added to the OME-Zarr standard in the future, these orientation annotations could instead be applied to such vectors, allowing multiple orientations to be expressed where anatomical orientation only makes sense locally (for example, an image containing multiple organs or multiple organisms).
 
 ## Abandoned Ideas
 
@@ -562,3 +565,4 @@ End-user applications SHOULD display the encoded information with, for example, 
 | 2026-01-20 | Clarify coordinate direction convention | [https://github.com/ome/ngff/pull/428](https://github.com/ome/ngff/pull/428) |
 | 2026-06-03 | Clarify subject-local vs. patient-global orientation and expand the controlled vocabulary with layered- and polarized-tissue terms (superficial/deep, apical/basal, apex/base), per [review 3](./reviews/3/index). | [https://github.com/ome/ngff/pull/435](https://github.com/ome/ngff/pull/435) |
 | 2026-06-04 | Clarify that an absent `orientation` and an explicit `null` `orientation` are equivalent and leave the orientation undefined. | [https://github.com/fideus-labs/ngff-zarr/pull/523](https://github.com/fideus-labs/ngff-zarr/pull/523) |
+| 2026-06-12 | Clarify that `orientation` describes a single, primary orientation; note that secondary orientations are not supported and could be expressed via a future generic vector data structure, and record the primary-vs-secondary alternative considered. | [https://github.com/ome/ngff/pull/528](https://github.com/ome/ngff/pull/528) |
