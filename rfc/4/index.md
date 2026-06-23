@@ -13,7 +13,7 @@ Summary: An optional, explicit field for specification of imaging axis orientati
 
 ## Status
 
-This RFC is currently in RFC state `R1` (send for review).
+This RFC is currently in RFC state `R4` (authors prepare responses).
 
 ```{list-table} Record
 :widths: 8, 20, 20, 20, 15, 10
@@ -50,12 +50,24 @@ This RFC is currently in RFC state `R1` (send for review).
     -
     - 2025-04-02
     - [Comment](./comments/1/index)
+*   - Reviewer
+    - Juan Nunez-Iglesias
+    - [jni](https://github.com/jni)
+    - Monash University
+    - 2025-08-05
+    - [Review](./reviews/2/index)
 *   - Commenter
     - Chris Barnes
     - [clbarnes](https://github.com/clbarnes)
     - German BioImaging
     - 2026-02-05
     - [Comment](./comments/2/index)
+*   - Reviewer
+    - Dave Horsfall
+    - [davehorsfall](https://github.com/davehorsfall)
+    - Haniffa Lab
+    - 2026-02-27
+    - [Review](./reviews/3/index)
 ```
 
 ## Overview
