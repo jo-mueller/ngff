@@ -20,7 +20,7 @@ APAC/AU/EU- and AMER/AU/EU-friendly times. We are happy to answer questions abou
 - how you can get involved in the community
 - ... and much more!
 
-Please see the calendar above for exact time to join at the [**Zoom link**](https://openmicroscopy-org.zoom.us/j/82526689042?pwd=ZIde7mcvZugQGmJ8Bm9piFo5Tzwdy1.1).
+Please see the [calendar](#ome-ngff-community-calendar) below for exact time to join at the [**Zoom link**](https://openmicroscopy-org.zoom.us/j/82526689042?pwd=ZIde7mcvZugQGmJ8Bm9piFo5Tzwdy1.1).
 
 ## Hackathons & Symposiums
 
